@@ -1,0 +1,81 @@
+/* =========================
+   Categories Section
+   ========================= */
+
+.categories {
+    padding: 55px 40px;
+
+    background-color: var(--color-background);
+
+    text-align: center;
+}
+
+
+/* =========================
+   Section Heading
+   ========================= */
+
+.categories h2 {
+    margin: 0 0 35px;
+
+    color: var(--color-text);
+
+    font-family: var(--font-family-heading);
+
+    font-size: 30px;
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+}
+
+
+/* =========================
+   Category Grid
+   ========================= */
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+
+/* =========================
+   Tablet
+   ========================= */
+
+@media (max-width: 1000px) {
+
+    .categories {
+        padding: 50px 25px;
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 600px) {
+
+    .categories {
+        padding: 40px 20px;
+    }
+
+    .categories h2 {
+        margin-bottom: 25px;
+
+        font-size: 26px;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr;
+
+        gap: 15px;
+    }
+}

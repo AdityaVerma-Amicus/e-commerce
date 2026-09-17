@@ -1,0 +1,147 @@
+/* =========================
+   Popular Categories
+   ========================= */
+
+.popular-categories {
+    padding: 45px 40px;
+
+    background-color: var(--color-background);
+
+    text-align: center;
+}
+
+
+/* =========================
+   Section Heading
+   ========================= */
+
+.popular-categories h2 {
+    margin: 0 0 30px;
+
+    color: var(--color-text);
+
+    font-family: var(--font-family-heading);
+
+    font-size: 30px;
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+
+    text-transform: none;
+}
+
+
+/* =========================
+   Category List
+   ========================= */
+
+.popular-categories-list {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 14px 26px;
+
+    width: 100%;
+    
+
+    margin: 0 auto;
+}
+
+
+/* =========================
+   Category Button
+   ========================= */
+
+.popular-categories-list button {
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 10px 15px;
+
+    background-color: var(--color-background);
+
+    color: var(--color-primary);
+
+    border: 1px solid var(--color-text);
+
+    border-radius: var(--border-radius-sm);
+
+    font-family: var(--font-family-base);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+
+/* =========================
+   Hover
+   ========================= */
+
+.popular-categories-list button:hover {
+    background-color: var(--color-primary);
+
+    color: var(--color-white);
+
+    border-color: var(--color-primary);
+}
+
+
+/* =========================
+   Tablet
+   ========================= */
+
+@media (max-width: 900px) {
+
+    .popular-categories {
+        padding: 45px 25px;
+    }
+
+    .popular-categories-list {
+        grid-template-columns: repeat(2, 1fr);
+
+        max-width: 650px;
+
+        gap: 14px 20px;
+    }
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 600px) {
+
+    .popular-categories {
+        padding: 40px 20px;
+    }
+
+    .popular-categories h2 {
+        margin-bottom: 25px;
+
+        font-size: 26px;
+    }
+
+    .popular-categories-list {
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+
+        max-width: 400px;
+    }
+
+    .popular-categories-list button {
+        min-height: 44px;
+
+        font-size: 14px;
+    }
+}

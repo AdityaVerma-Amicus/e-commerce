@@ -1,0 +1,156 @@
+/* =========================
+   Footer
+   ========================= */
+
+.footer {
+    background-color: var(--color-surface);
+
+    border-top: 2px solid var(--color-primary);
+}
+
+
+/* =========================
+   Footer Container
+   ========================= */
+
+.footer-container {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 40px;
+
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding: 50px 40px;
+}
+
+
+/* =========================
+   Footer Section
+   ========================= */
+
+.footer-section h3 {
+    margin: 0 0 20px;
+
+    color: var(--color-text);
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+/* =========================
+   Footer Text
+   ========================= */
+
+.footer-section p {
+    margin: 0 0 15px;
+
+    color: var(--color-text);
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    line-height: 1.6;
+}
+
+
+/* =========================
+   Quick Links
+   ========================= */
+
+.footer-section ul {
+    margin: 0;
+
+    padding: 0;
+
+    list-style: none;
+}
+
+
+.footer-section li {
+    margin-bottom: 10px;
+}
+
+
+.footer-section a {
+    color: var(--color-primary);
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: color 0.2s ease;
+}
+
+
+.footer-section a:hover {
+    color: var(--color-primary-hover);
+
+    text-decoration: none;
+}
+
+
+/* =========================
+   Footer Bottom
+   ========================= */
+
+.footer-bottom {
+    padding: 20px 40px;
+
+    border-top: 1px solid var(--color-border);
+
+    text-align: center;
+}
+
+
+.footer-bottom p {
+    margin: 0;
+
+    color: var(--color-text-secondary);
+
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+
+/* =========================
+   Tablet
+   ========================= */
+
+@media (max-width: 900px) {
+
+    .footer-container {
+        grid-template-columns: repeat(2, 1fr);
+
+        padding: 40px 25px;
+    }
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 600px) {
+
+    .footer-container {
+        grid-template-columns: 1fr;
+
+        gap: 30px;
+
+        padding: 40px 20px;
+    }
+
+    .footer-bottom {
+        padding: 20px;
+    }
+}
