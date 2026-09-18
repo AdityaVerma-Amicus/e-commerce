@@ -6,7 +6,11 @@ import RadioOption from "../RadioOption/RadioOption";
 import EmptyState from "../EmptyState/EmptyState";
 
 import { useProducts } from "../../hooks/useProducts";
-import { fetchCategories } from "../../services/categoryServices";
+import useDebounce from "../../hooks/useDebounce";
+import useFetch from "../../hooks/useFetch";
+
+import { CATEGORIES_API_URL } from "../../services/categoryServices";
+
 import type { Product } from "../../data/products";
 
 const SORT_OPTIONS: Record<string, { sortBy: string; order: string }> = {
@@ -38,10 +42,7 @@ const SORT_LABELS: Record<string, string> = {
 
 interface ProductListingProps {
   initialSearch?: string;
-  onAddToCart: (
-        product: Product,
-        quantity: number
-    ) => void;
+  onAddToCart: (product: Product, quantity: number) => void;
 }
 
 const PRODUCT_PAGE_SIZE = 9;
@@ -52,10 +53,31 @@ function ProductListing({
   onAddToCart,
 }: ProductListingProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
+
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [categories, setCategories] = useState<string[]>([]);
+
   const [sortOption, setSortOption] = useState("default");
+
   const [showAllCategories, setShowAllCategories] = useState(false);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  /*
+   * Generic data fetching for categories.
+   * useFetch handles:
+   * - API request
+   * - loading state
+   * - error state
+   * - AbortController
+   * - cleanup
+   * - refetch
+   */
+  const {
+    data: categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+    refetch: refetchCategories,
+  } = useFetch<string[]>(CATEGORIES_API_URL);
 
   const {
     products,
@@ -69,30 +91,16 @@ function ProductListing({
   } = useProducts(PRODUCT_PAGE_SIZE);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    const loadCategories = async () => {
-      try {
-        const data = await fetchCategories(controller.signal);
-        setCategories(data);
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
-        console.error(error);
-      }
-    };
-
-    loadCategories();
-
-    return () => controller.abort();
-  }, []);
+    setSearchTerm(initialSearch);
+  }, [initialSearch]);
 
   useEffect(() => {
-    setSearchTerm(initialSearch);
-    refresh(initialSearch);
-  }, [initialSearch]);
+    if (!debouncedSearchTerm.trim()) {
+      return;
+    }
+
+    refresh(debouncedSearchTerm);
+  }, [debouncedSearchTerm]);
 
   const getSortParams = () =>
     SORT_OPTIONS[sortOption] ?? {
@@ -127,12 +135,15 @@ function ProductListing({
 
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value);
+
     refreshProducts(searchTerm, value);
   };
 
+  const categoryList = categories ?? [];
+
   const visibleCategories = showAllCategories
-    ? categories
-    : categories.slice(0, INITIAL_CATEGORY_COUNT);
+    ? categoryList
+    : categoryList.slice(0, INITIAL_CATEGORY_COUNT);
 
   const startResult =
     totalResults === 0 ? 0 : (currentPage - 1) * PRODUCT_PAGE_SIZE + 1;
@@ -160,35 +171,65 @@ function ProductListing({
               />
             </div>
 
-            {/* Category List */}
-            <div
-              className={
-                showAllCategories
-                  ? "max-h-64 space-y-3 overflow-y-auto pr-2"
-                  : "space-y-3"
-              }
-            >
-              {visibleCategories.map((category) => (
-                <RadioOption
-                  key={category}
-                  name="category"
-                  value={category}
-                  label={category.charAt(0).toUpperCase() + category.slice(1)}
-                  checked={selectedCategory === category}
-                  onChange={handleCategoryChange}
-                />
-              ))}
-            </div>
+            {/* Category Loading */}
+            {categoriesLoading && (
+              <p className="text-sm text-text-secondary">
+                Loading categories...
+              </p>
+            )}
 
-            {/* View All / Show Less */}
-            {categories.length > INITIAL_CATEGORY_COUNT && (
-              <button
-                type="button"
-                onClick={() => setShowAllCategories((previous) => !previous)}
-                className="mt-4 text-sm font-semibold text-primary transition-colors hover:text-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              >
-                {showAllCategories ? "Show Less" : "View All"}
-              </button>
+            {/* Category Error */}
+            {!categoriesLoading && categoriesError && (
+              <div className="space-y-2">
+                <p className="text-sm text-red-600">{categoriesError}</p>
+
+                <button
+                  type="button"
+                  onClick={refetchCategories}
+                  className="text-sm font-semibold text-primary hover:text-primary-hover"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {/* Category List */}
+            {!categoriesLoading && !categoriesError && (
+              <>
+                <div
+                  className={
+                    showAllCategories
+                      ? "max-h-64 space-y-3 overflow-y-auto pr-2"
+                      : "space-y-3"
+                  }
+                >
+                  {visibleCategories.map((category) => (
+                    <RadioOption
+                      key={category}
+                      name="category"
+                      value={category}
+                      label={
+                        category.charAt(0).toUpperCase() + category.slice(1)
+                      }
+                      checked={selectedCategory === category}
+                      onChange={handleCategoryChange}
+                    />
+                  ))}
+                </div>
+
+                {/* View All / Show Less */}
+                {categoryList.length > INITIAL_CATEGORY_COUNT && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowAllCategories((previous) => !previous)
+                    }
+                    className="mt-4 text-sm font-semibold text-primary transition-colors hover:text-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  >
+                    {showAllCategories ? "Show Less" : "View All"}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </aside>

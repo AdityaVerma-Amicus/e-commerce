@@ -1,50 +1,73 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface UseFetchResult<T> {
-    data: T | null;
-    loading: boolean;
-    error: string | null;
+  data: T | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => void;
 }
 
-function useFetch<T>(url: string): UseFetchResult<T> {
-    const [data, setData] = useState<T | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+function useFetch<T>(url: string, options?: RequestInit): UseFetchResult<T> {
+  const [data, setData] = useState<T | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                setError(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-                const response = await fetch(url);
+  const [error, setError] = useState<string | null>(null);
 
-                if (!response.ok) {
-                    throw new Error("Failed to fetch data");
-                }
+  const [refetchKey, setRefetchKey] = useState(0);
 
-                const result: T = await response.json();
+  const refetch = useCallback(() => {
+    setRefetchKey((previousKey) => previousKey + 1);
+  }, []);
 
-                setData(result);
-            } catch (error) {
-                setError(
-                    error instanceof Error
-                        ? error.message
-                        : "Something went wrong"
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    const controller = new AbortController();
 
-        fetchData();
-    }, [url]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    return {
-        data,
-        loading,
-        error,
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const result: T = await response.json();
+
+        setData(result);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        setError(
+          error instanceof Error ? error.message : "Something went wrong",
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
     };
+
+    fetchData();
+
+    return () => {
+      controller.abort();
+    };
+  }, [url, options, refetchKey]);
+
+  return {
+    data,
+    loading,
+    error,
+    refetch,
+  };
 }
 
 export default useFetch;
