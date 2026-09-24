@@ -55,3 +55,21 @@ export async function fetchProducts(
 
     return data;
 }
+
+export async function fetchProductById(
+    signal: AbortSignal,
+    id: number,
+): Promise<ProductApiResponse> {
+    const response = await fetch(
+        `${PRODUCTS_API_URL}/${id}`,
+        { signal },
+    );
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch product");
+    }
+
+    const data: ProductApiResponse = await response.json();
+
+    return data;
+}

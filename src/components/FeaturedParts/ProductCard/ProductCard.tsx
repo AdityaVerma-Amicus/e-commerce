@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 import type { Product } from "../../../data/products";
 
@@ -19,34 +20,43 @@ function ProductCard({
 
     return (
         <div className="flex h-100 w-54 shrink-0 flex-col rounded-md border border-border bg-background p-3 pb-3 shadow-sm transition-shadow duration-200 hover:shadow-lg">
-            <div className="relative mb-2 flex h-30 w-full shrink-0 items-center justify-center overflow-hidden">
-                <img
-                    src={product.image}
-                    alt={product.name}
-                    className="block h-30 w-36 max-w-full object-contain transition-transform duration-300 hover:scale-105"
-                />
 
-                {product.isSale && (
-                    <span className="absolute right-0.5 top-1.5 z-10 rounded-full bg-primary px-2 py-1 text-[8px] font-bold leading-none tracking-wide text-white shadow-sm">
-                        SALE
-                    </span>
-                )}
+            <Link
+                to={`/products/${product.id}`}
+                className="block"
+            >
+                <div className="relative mb-2 flex h-30 w-full shrink-0 items-center justify-center overflow-hidden">
+                    <img
+                        src={product.image}
+                        alt={product.name}
+                        className="block h-30 w-36 max-w-full object-contain transition-transform duration-300 hover:scale-105"
+                    />
 
-                {product.isNew && (
-                    <span className="absolute -left-5 top-3 z-10 w-16 -rotate-45 bg-primary py-1 text-center text-[8px] font-bold leading-none tracking-tight text-white shadow-sm">
-                        NEW
-                    </span>
-                )}
-            </div>
+                    {product.isSale && (
+                        <span className="absolute right-0.5 top-1.5 z-10 rounded-full bg-primary px-2 py-1 text-[8px] font-bold leading-none tracking-wide text-white shadow-sm">
+                            SALE
+                        </span>
+                    )}
+
+                    {product.isNew && (
+                        <span className="absolute -left-5 top-3 z-10 w-16 -rotate-45 bg-primary py-1 text-center text-[8px] font-bold leading-none tracking-tight text-white shadow-sm">
+                            NEW
+                        </span>
+                    )}
+                </div>
+
+                <div className="flex flex-col items-center text-center">
+                    <h3 className="mb-2 min-h-10 overflow-hidden text-sm font-semibold leading-tight text-text [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
+                        {product.name}
+                    </h3>
+
+                    <p className="my-1.5 text-xl font-bold text-primary">
+                        ${product.price}
+                    </p>
+                </div>
+            </Link>
 
             <div className="flex flex-1 flex-col items-center text-center">
-                <h3 className="mb-2 min-h-10 overflow-hidden text-sm font-semibold leading-tight text-text [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]">
-                    {product.name}
-                </h3>
-
-                <p className="my-1.5 text-xl font-bold text-primary">
-                    ${product.price}
-                </p>
 
                 <p className="mb-2 text-xs text-text-secondary">
                     SKU: {product.sku}

@@ -160,6 +160,14 @@
   border-top: 1px solid var(--color-border);
 }
 
+.drawer-menu-item-active {
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+}
+
+.drawer-menu-item-active svg {
+    color: var(--color-primary);
+}
 
 /* =========================
    Tablet + Mobile

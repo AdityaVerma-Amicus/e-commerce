@@ -1,26 +1,24 @@
+import { useSearchParams } from "react-router-dom";
+
 import ProductListing from "../components/ProductListing/ProductListing";
 import PageContainer from "../components/Layout/PageContainer/PageContainer";
 
-import type { Product } from "../data/products";
+import { useCart } from "../hooks/useCart";
 
-interface SearchResultsProps {
-    searchQuery: string;
-    onAddToCart: (
-        product: Product,
-        quantity: number
-    ) => void;
-}
+function SearchResults() {
+    const [searchParams] = useSearchParams();
 
-function SearchResults({
-    searchQuery,
-    onAddToCart,
-}: SearchResultsProps) {
+    const { addItem } = useCart();
+
+    const searchQuery =
+        searchParams.get("q") ?? "";
+
     return (
         <main>
             <PageContainer>
                 <ProductListing
                     initialSearch={searchQuery}
-                    onAddToCart={onAddToCart}
+                    onAddToCart={addItem}
                 />
             </PageContainer>
         </main>

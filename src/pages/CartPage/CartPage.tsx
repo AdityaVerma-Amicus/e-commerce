@@ -1,26 +1,28 @@
 import Cart from "../../components/Cart/Cart";
 import PageContainer from "../../components/Layout/PageContainer/PageContainer";
+
+import { useCart } from "../../hooks/useCart";
+
 import "./CartPage.css";
-import type { CartItem } from "../../types/cart";
 
-interface CartPageProps {
-  items: CartItem[];
-  onUpdateQuantity: (id: number, quantity: number) => void;
-  onRemoveItem: (id: number) => void;
-}
+function CartPage() {
+    const {
+        items,
+        updateQty,
+        removeItem,
+    } = useCart();
 
-function CartPage({ items, onUpdateQuantity, onRemoveItem }: CartPageProps) {
-  return (
-    <PageContainer>
-      <main className="cart-page">
-        <Cart
-          items={items}
-          onUpdateQuantity={onUpdateQuantity}
-          onRemoveItem={onRemoveItem}
-        />
-      </main>
-    </PageContainer>
-  );
+    return (
+        <PageContainer>
+            <main className="cart-page">
+                <Cart
+                    items={items}
+                    onUpdateQuantity={updateQty}
+                    onRemoveItem={removeItem}
+                />
+            </main>
+        </PageContainer>
+    );
 }
 
 export default CartPage;
