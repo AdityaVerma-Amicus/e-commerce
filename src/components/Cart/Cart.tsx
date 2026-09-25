@@ -1,9 +1,18 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import CartItem from "./CartItem/CartItem";
 import "./Cart.css";
 
 import type { CartItem as CartItemType } from "../../types/cart";
+
+type ShippingMethod = "standard" | "express" | "overnight";
+
+const SHIPPING_RATES: Record<ShippingMethod, number> = {
+  standard: 5,
+  express: 15,
+  overnight: 25,
+};
 
 interface CartProps {
   items: CartItemType[];
@@ -18,6 +27,9 @@ function Cart({
 }: CartProps) {
   const navigate = useNavigate();
 
+  const [shippingMethod, setShippingMethod] =
+    useState<ShippingMethod>("standard");
+
   const subtotal = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
@@ -27,6 +39,12 @@ function Cart({
     (total, item) => total + item.quantity,
     0,
   );
+
+  const shipping = SHIPPING_RATES[shippingMethod];
+
+  const tax = subtotal * 0.08;
+
+  const total = subtotal + shipping + tax;
 
   if (items.length === 0) {
     return (
@@ -41,6 +59,14 @@ function Cart({
           <p>
             Add products to your cart to see them here.
           </p>
+
+          <button
+            type="button"
+            className="cart-continue-button"
+            onClick={() => navigate("/products")}
+          >
+            Browse Products
+          </button>
         </div>
       </section>
     );
@@ -58,17 +84,54 @@ function Cart({
       </div>
 
       <div className="cart-content">
-        <div className="cart-items">
-          {items.map((item) => (
-            <CartItem
-              key={item.id}
-              item={item}
-              onUpdateQuantity={onUpdateQuantity}
-              onRemove={onRemoveItem}
-            />
-          ))}
+        {/* Left side */}
+        <div className="cart-items-section">
+          <div className="cart-items">
+            {items.map((item) => (
+              <CartItem
+                key={item.id}
+                item={item}
+                onUpdateQuantity={onUpdateQuantity}
+                onRemove={onRemoveItem}
+              />
+            ))}
+          </div>
+
+          {/* Shipping selection below cart items */}
+          <div className="cart-shipping">
+            <label
+              htmlFor="shipping-method"
+              className="cart-shipping-label"
+            >
+              Shipping Type <span>*</span>
+            </label>
+
+            <select
+              id="shipping-method"
+              value={shippingMethod}
+              onChange={(event) =>
+                setShippingMethod(
+                  event.target.value as ShippingMethod,
+                )
+              }
+              className="cart-shipping-select"
+            >
+              <option value="standard">
+                Standard ($5)
+              </option>
+
+              <option value="express">
+                Express ($15)
+              </option>
+
+              <option value="overnight">
+                Overnight ($25)
+              </option>
+            </select>
+          </div>
         </div>
 
+        {/* Right side */}
         <aside className="cart-summary">
           <h2>Order Summary</h2>
 
@@ -80,12 +143,44 @@ function Cart({
             </strong>
           </div>
 
+          <div className="cart-summary-row">
+            <span>Shipping</span>
+
+            <strong>
+              ${shipping.toFixed(2)}
+            </strong>
+          </div>
+
+          <div className="cart-summary-row">
+            <span>Tax (8%)</span>
+
+            <strong>
+              ${tax.toFixed(2)}
+            </strong>
+          </div>
+
+          <div className="cart-summary-row cart-summary-total">
+            <span>Total</span>
+
+            <strong>
+              ${total.toFixed(2)}
+            </strong>
+          </div>
+
           <button
             type="button"
             className="cart-checkout-button"
             onClick={() => navigate("/checkout")}
           >
             Proceed to Checkout
+          </button>
+
+          <button
+            type="button"
+            className="cart-continue-button"
+            onClick={() => navigate("/products")}
+          >
+            Continue Shopping
           </button>
         </aside>
       </div>

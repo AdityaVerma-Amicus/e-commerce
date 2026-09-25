@@ -8,55 +8,51 @@ import SearchResults from "../pages/SearchResults";
 import CartPage from "../pages/CartPage/CartPage";
 import ProductDetail from "../pages/ProductDetail/ProductDetail";
 import NotFound from "../pages/NotFound/NotFound";
+import Login from "../pages/Login/Login";
+import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
-const CheckoutPage = lazy(
-    () => import("../pages/CheckoutPage/CheckoutPage"),
-);
+const CheckoutPage = lazy(() => import("../pages/CheckoutPage/CheckoutPage"));
 
-const OrdersPage = lazy(
-    () => import("../pages/OrdersPage/OrdersPage"),
-);
+const OrdersPage = lazy(() => import("../pages/OrdersPage/OrdersPage"));
 
 function AppRoutes() {
-    return (
-        <Routes>
-            <Route element={<MainLayout />}>
-                <Route path="/" element={<Home />} />
+  return (
+    <Routes>
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
 
-                <Route
-                    path="/products"
-                    element={<SearchResults />}
-                />
+        <Route path="/products" element={<SearchResults />} />
 
-                <Route
-                    path="/products/:id"
-                    element={<ProductDetail />}
-                />
+        <Route path="/products/:id" element={<ProductDetail />} />
 
-                <Route path="/cart" element={<CartPage />} />
+        <Route path="/cart" element={<CartPage />} />
 
-                <Route
-                    path="/checkout"
-                    element={
-                        <Suspense fallback={<p>Loading checkout...</p>}>
-                            <CheckoutPage />
-                        </Suspense>
-                    }
-                />
+        <Route path="/login" element={<Login />} />
 
-                <Route
-                    path="/orders"
-                    element={
-                        <Suspense fallback={<p>Loading orders...</p>}>
-                            <OrdersPage />
-                        </Suspense>
-                    }
-                />
+        <Route
+          path="/checkout"
+          element={
+            <Suspense fallback={<p>Loading checkout...</p>}>
+              <CheckoutPage />
+            </Suspense>
+          }
+        />
 
-                <Route path="*" element={<NotFound />} />
-            </Route>
-        </Routes>
-    );
+        <Route element={<ProtectedRoute />}>
+          <Route
+            path="/orders"
+            element={
+              <Suspense fallback={<p>Loading orders...</p>}>
+                <OrdersPage />
+              </Suspense>
+            }
+          />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default AppRoutes;
