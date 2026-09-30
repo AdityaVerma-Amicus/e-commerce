@@ -4,14 +4,38 @@
     padding: 3rem 1rem 4rem;
 }
 
-@media (min-width: 640px) {
-    .cart-page {
-        padding: 3.5rem 1.5rem 5rem;
-    }
-}
+/* =========================
+   Mobile
+   ========================= */
 
-@media (min-width: 1024px) {
-    .cart-page {
-        padding: 3.5rem 2rem 5rem;
+@media (max-width: 640px) {
+    .cart {
+        width: 100%;
+    }
+
+    .cart-header {
+        min-height: 4rem;
+        padding: 0.85rem 1rem;
+    }
+
+    .cart-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .cart-header span {
+        font-size: 0.8rem;
+    }
+
+    .cart-content {
+        gap: 1rem;
+        padding: 0.75rem;
+    }
+
+    .cart-summary {
+        padding: 1.25rem;
+    }
+
+    .cart-shipping-select {
+        width: 100%;
     }
 }

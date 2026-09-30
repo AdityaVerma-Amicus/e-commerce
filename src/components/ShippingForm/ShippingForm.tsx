@@ -15,19 +15,27 @@ import {
   type State,
 } from "../../services/locationService";
 
+import type { ShippingMethod } from "../../types/orders";
+
 import "./ShippingForm.css";
 
-interface ShippingFormData {
+export interface ShippingFormData {
   fullName: string;
   email: string;
   phone: string;
   streetAddress: string;
   aptSuite: string;
   city: string;
+
   state: string;
+  stateName: string;
+
   zip: string;
+
   country: string;
-  shippingMethod: string;
+  countryName: string;
+
+  shippingMethod: ShippingMethod | "";
 }
 
 interface ShippingFormErrors {
@@ -42,6 +50,12 @@ interface ShippingFormErrors {
   shippingMethod?: string;
 }
 
+interface ShippingFormProps {
+  onSubmit: (data: ShippingFormData) => void;
+  shippingMethod: ShippingMethod | "";
+  onShippingMethodChange: (method: ShippingMethod) => void;
+}
+
 const CUSTOM_CITY_VALUE = "__custom__";
 
 const initialFormData: ShippingFormData = {
@@ -51,27 +65,59 @@ const initialFormData: ShippingFormData = {
   streetAddress: "",
   aptSuite: "",
   city: "",
+
   state: "",
+  stateName: "",
+
   zip: "",
+
   country: "",
+  countryName: "",
+
   shippingMethod: "",
 };
 
-function ShippingForm() {
+function ShippingForm({
+  onSubmit,
+  shippingMethod,
+  onShippingMethodChange,
+}: ShippingFormProps) {
   const [formData, setFormData] = useState<ShippingFormData>(initialFormData);
+
   const [errors, setErrors] = useState<ShippingFormErrors>({});
-  const [isSubmitted, setIsSubmitted] = useState(false);
+
   const [countries, setCountries] = useState<Country[]>([]);
+
   const [states, setStates] = useState<State[]>([]);
+
   const [cities, setCities] = useState<City[]>([]);
+
   const [customCity, setCustomCity] = useState("");
+
   const [isCustomCity, setIsCustomCity] = useState(false);
+
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+
   const [isLoadingStates, setIsLoadingStates] = useState(false);
+
   const [isLoadingCities, setIsLoadingCities] = useState(false);
+
   const [countryError, setCountryError] = useState("");
+
   const [stateError, setStateError] = useState("");
+
   const [cityError, setCityError] = useState("");
+
+  /*
+   * Keep the form data in sync with
+   * the shipping method controlled by CheckoutPage.
+   */
+  useEffect(() => {
+    setFormData((previousData) => ({
+      ...previousData,
+      shippingMethod,
+    }));
+  }, [shippingMethod]);
 
   /*
    * Fetch Countries
@@ -175,114 +221,66 @@ function ShippingForm() {
    * Handle Input / Select Changes
    */
   const handleChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = event.target;
 
     /*
-     * Country changed
+     * Country:
+     * Store both the country code and country name.
      */
     if (name === "country") {
+      const selectedCountry = countries.find(
+        (country) => country.iso2 === value,
+      );
+
       setFormData((previousData) => ({
         ...previousData,
+
         country: value,
+        countryName: selectedCountry?.name ?? "",
+
         state: "",
+        stateName: "",
+
         city: "",
       }));
 
-      setStates([]);
-      setCities([]);
-
-      setIsCustomCity(false);
       setCustomCity("");
-
-      setCountryError("");
-      setStateError("");
-      setCityError("");
-
-      setErrors((previousErrors) => ({
-        ...previousErrors,
-        country: undefined,
-        state: undefined,
-        city: undefined,
-      }));
-
-      setIsSubmitted(false);
+      setIsCustomCity(false);
 
       return;
     }
 
     /*
-     * State changed
+     * State:
+     * Store both the state code and state name.
      */
     if (name === "state") {
+      const selectedState = states.find((state) => state.stateCode === value);
+
       setFormData((previousData) => ({
         ...previousData,
+
         state: value,
+        stateName: selectedState?.name ?? "",
+
         city: "",
       }));
 
-      setCities([]);
-
+      setCustomCity("");
       setIsCustomCity(false);
-      setCustomCity("");
-
-      setStateError("");
-      setCityError("");
-
-      setErrors((previousErrors) => ({
-        ...previousErrors,
-        state: undefined,
-        city: undefined,
-      }));
-
-      setIsSubmitted(false);
 
       return;
     }
 
     /*
-     * City changed
-     */
-    if (name === "city") {
-      if (value === CUSTOM_CITY_VALUE) {
-        setIsCustomCity(true);
-
-        setFormData((previousData) => ({
-          ...previousData,
-          city: "",
-        }));
-      } else {
-        setIsCustomCity(false);
-
-        setFormData((previousData) => ({
-          ...previousData,
-          city: value,
-        }));
-      }
-
-      setCustomCity("");
-
-      setErrors((previousErrors) => ({
-        ...previousErrors,
-        city: undefined,
-      }));
-
-      setCityError("");
-      setIsSubmitted(false);
-
-      return;
-    }
-
-    /*
-     * Regular Input
+     * Normal input/select fields.
      */
     setFormData((previousData) => ({
       ...previousData,
       [name]: value,
     }));
-
-    setIsSubmitted(false);
   };
 
   /*
@@ -303,7 +301,7 @@ function ShippingForm() {
       city: undefined,
     }));
 
-    setIsSubmitted(false);
+    setCityError("");
   };
 
   /*
@@ -315,9 +313,11 @@ function ShippingForm() {
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full Name is required";
     }
+
     if (formData.fullName.trim().length > 120) {
       newErrors.fullName = "Full Name must be 120 characters or less";
     }
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
@@ -354,6 +354,7 @@ function ShippingForm() {
     if (!formData.country.trim()) {
       newErrors.country = "Country is required";
     }
+
     if (!formData.shippingMethod) {
       newErrors.shippingMethod = "Shipping method is required";
     }
@@ -368,6 +369,7 @@ function ShippingForm() {
     event: FocusEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name } = event.target;
+
     const validationErrors = validateForm();
 
     setErrors((previousErrors) => ({
@@ -375,11 +377,6 @@ function ShippingForm() {
       [name]: validationErrors[name as keyof ShippingFormErrors],
     }));
   };
-
-  /*
-   * Form Validity
-   */
-  const isFormValid = Object.keys(validateForm()).length === 0;
 
   /*
    * Submit Form
@@ -395,26 +392,29 @@ function ShippingForm() {
       return;
     }
 
-    console.log("Shipping Form Data :", formData);
+    onSubmit(formData);
+  };
 
-    setIsSubmitted(true);
-    setFormData(initialFormData);
-    setCustomCity("");
-    setIsCustomCity(false);
-    setErrors({});
-    setStates([]);
-    setCities([]);
+  /*
+   * Shipping Method Change
+   */
+  const handleShippingMethodChange = (method: ShippingMethod) => {
+    onShippingMethodChange(method);
+
+    setFormData((previousData) => ({
+      ...previousData,
+      shippingMethod: method,
+    }));
+
+    setErrors((previousErrors) => ({
+      ...previousErrors,
+      shippingMethod: undefined,
+    }));
   };
 
   return (
     <main className="shipping-form-container">
       <form className="shipping-form" onSubmit={handleSubmit}>
-        <h1>Checkout</h1>
-
-        {isSubmitted && (
-          <p className="success-message">Checkout submitted successfully!</p>
-        )}
-
         <section className="form-section">
           <h2>Shipping Information</h2>
 
@@ -658,7 +658,7 @@ function ShippingForm() {
                 name="shippingMethod"
                 value="standard"
                 checked={formData.shippingMethod === "standard"}
-                onChange={handleChange}
+                onChange={() => handleShippingMethodChange("standard")}
               />
               Standard ($5)
             </label>
@@ -669,7 +669,7 @@ function ShippingForm() {
                 name="shippingMethod"
                 value="express"
                 checked={formData.shippingMethod === "express"}
-                onChange={handleChange}
+                onChange={() => handleShippingMethodChange("express")}
               />
               Express ($15)
             </label>
@@ -680,23 +680,22 @@ function ShippingForm() {
                 name="shippingMethod"
                 value="overnight"
                 checked={formData.shippingMethod === "overnight"}
-                onChange={handleChange}
+                onChange={() => handleShippingMethodChange("overnight")}
               />
               Overnight ($25)
             </label>
+
             {errors.shippingMethod && (
               <p className="form-error">{errors.shippingMethod}</p>
             )}
           </div>
         </section>
 
-        <button
-          className="place-order-btn"
-          type="submit"
-          disabled={!isFormValid}
-        >
-          Submit Checkout
-        </button>
+        <div className="shipping-form-actions">
+          <button type="submit" className="continue-payment-btn">
+            CONTINUE TO PAYMENT
+          </button>
+        </div>
       </form>
     </main>
   );

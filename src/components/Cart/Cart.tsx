@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import CartItem from "./CartItem/CartItem";
@@ -6,7 +5,9 @@ import "./Cart.css";
 
 import type { CartItem as CartItemType } from "../../types/cart";
 
-type ShippingMethod = "standard" | "express" | "overnight";
+import { useCartContext } from "../../context/CartContext";
+
+import type { ShippingMethod } from "../../types/orders";
 
 const SHIPPING_RATES: Record<ShippingMethod, number> = {
   standard: 5,
@@ -20,25 +21,23 @@ interface CartProps {
   onRemoveItem: (id: number) => void;
 }
 
-function Cart({
-  items,
-  onUpdateQuantity,
-  onRemoveItem,
-}: CartProps) {
+function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
   const navigate = useNavigate();
 
-  const [shippingMethod, setShippingMethod] =
-    useState<ShippingMethod>("standard");
+  /*
+   * Shipping method comes from CartContext.
+   *
+   * This keeps the selected shipping method
+   * consistent between Cart and Checkout.
+   */
+  const { shippingMethod, setShippingMethod } = useCartContext();
 
   const subtotal = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0,
   );
 
-  const totalQuantity = items.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
 
   const shipping = SHIPPING_RATES[shippingMethod];
 
@@ -56,9 +55,7 @@ function Cart({
         <div className="cart-empty">
           <h2>Your cart is empty</h2>
 
-          <p>
-            Add products to your cart to see them here.
-          </p>
+          <p>Add products to your cart to see them here.</p>
 
           <button
             type="button"
@@ -78,13 +75,15 @@ function Cart({
         <h1>Your Cart</h1>
 
         <span>
-          {totalQuantity}{" "}
-          {totalQuantity === 1 ? "item" : "items"}
+          {totalQuantity} {totalQuantity === 1 ? "item" : "items"}
         </span>
       </div>
 
       <div className="cart-content">
-        {/* Left side */}
+        {/* =========================
+            LEFT SIDE
+           ========================= */}
+
         <div className="cart-items-section">
           <div className="cart-items">
             {items.map((item) => (
@@ -97,12 +96,9 @@ function Cart({
             ))}
           </div>
 
-          {/* Shipping selection below cart items */}
+          {/* Shipping selection */}
           <div className="cart-shipping">
-            <label
-              htmlFor="shipping-method"
-              className="cart-shipping-label"
-            >
+            <label htmlFor="shipping-method" className="cart-shipping-label">
               Shipping Type <span>*</span>
             </label>
 
@@ -110,61 +106,48 @@ function Cart({
               id="shipping-method"
               value={shippingMethod}
               onChange={(event) =>
-                setShippingMethod(
-                  event.target.value as ShippingMethod,
-                )
+                setShippingMethod(event.target.value as ShippingMethod)
               }
               className="cart-shipping-select"
             >
-              <option value="standard">
-                Standard ($5)
-              </option>
+              <option value="standard">Standard ($5)</option>
 
-              <option value="express">
-                Express ($15)
-              </option>
+              <option value="express">Express ($15)</option>
 
-              <option value="overnight">
-                Overnight ($25)
-              </option>
+              <option value="overnight">Overnight ($25)</option>
             </select>
           </div>
         </div>
 
-        {/* Right side */}
+        {/* =========================
+            RIGHT SIDE
+           ========================= */}
+
         <aside className="cart-summary">
           <h2>Order Summary</h2>
 
           <div className="cart-summary-row">
             <span>Subtotal</span>
 
-            <strong>
-              ${subtotal.toFixed(2)}
-            </strong>
+            <strong>${subtotal.toFixed(2)}</strong>
           </div>
 
           <div className="cart-summary-row">
             <span>Shipping</span>
 
-            <strong>
-              ${shipping.toFixed(2)}
-            </strong>
+            <strong>${shipping.toFixed(2)}</strong>
           </div>
 
           <div className="cart-summary-row">
             <span>Tax (8%)</span>
 
-            <strong>
-              ${tax.toFixed(2)}
-            </strong>
+            <strong>${tax.toFixed(2)}</strong>
           </div>
 
           <div className="cart-summary-row cart-summary-total">
             <span>Total</span>
 
-            <strong>
-              ${total.toFixed(2)}
-            </strong>
+            <strong>${total.toFixed(2)}</strong>
           </div>
 
           <button

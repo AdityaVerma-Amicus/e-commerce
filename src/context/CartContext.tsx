@@ -4,9 +4,11 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useState,
 } from "react";
 
 import type { Product } from "../data/products";
+
 import {
   fetchCart,
   getStoredCart,
@@ -18,14 +20,36 @@ import {
   type CartState,
 } from "./cartReducer";
 
+import type { ShippingMethod } from "../types/orders";
+
 interface CartContextValue {
   items: CartState["items"];
-  addItem: (product: Product, quantity: number) => void;
+
+  addItem: (
+    product: Product,
+    quantity: number,
+  ) => void;
+
   removeItem: (id: number) => void;
-  updateQty: (id: number, quantity: number) => void;
+
+  updateQty: (
+    id: number,
+    quantity: number,
+  ) => void;
+
   clearCart: () => void;
+
   totalItems: number;
+
   subtotal: number;
+
+  shippingMethod: ShippingMethod;
+
+  setShippingMethod: (
+    method: ShippingMethod,
+  ) => void;
+
+  isLoading: boolean;
 }
 
 const CartContext =
@@ -36,6 +60,9 @@ const initialState: CartState = {
   isLoading: true,
 };
 
+const DEFAULT_SHIPPING_METHOD: ShippingMethod =
+  "standard";
+
 export function CartProvider({
   children,
 }: {
@@ -44,6 +71,13 @@ export function CartProvider({
   const [state, dispatch] = useReducer(
     cartReducer,
     initialState,
+  );
+
+  const [
+    shippingMethod,
+    setShippingMethodState,
+  ] = useState<ShippingMethod>(
+    DEFAULT_SHIPPING_METHOD,
   );
 
   useEffect(() => {
@@ -74,7 +108,10 @@ export function CartProvider({
 
         saveCart(apiCart);
       } catch (error) {
-        console.error("Failed to load cart:", error);
+        console.error(
+          "Failed to load cart:",
+          error,
+        );
       } finally {
         dispatch({
           type: "SET_LOADING",
@@ -92,7 +129,10 @@ export function CartProvider({
     }
 
     saveCart(state.items);
-  }, [state.items, state.isLoading]);
+  }, [
+    state.items,
+    state.isLoading,
+  ]);
 
   const addItem = (
     product: Product,
@@ -133,10 +173,17 @@ export function CartProvider({
     });
   };
 
+  const setShippingMethod = (
+    method: ShippingMethod,
+  ) => {
+    setShippingMethodState(method);
+  };
+
   const totalItems = useMemo(
     () =>
       state.items.reduce(
-        (total, item) => total + item.quantity,
+        (total, item) =>
+          total + item.quantity,
         0,
       ),
     [state.items],
@@ -146,7 +193,8 @@ export function CartProvider({
     () =>
       state.items.reduce(
         (total, item) =>
-          total + item.price * item.quantity,
+          total +
+          item.price * item.quantity,
         0,
       ),
     [state.items],
@@ -154,12 +202,19 @@ export function CartProvider({
 
   const value: CartContextValue = {
     items: state.items,
+
     addItem,
     removeItem,
     updateQty,
     clearCart,
+
     totalItems,
     subtotal,
+
+    shippingMethod,
+    setShippingMethod,
+
+    isLoading: state.isLoading,
   };
 
   return (

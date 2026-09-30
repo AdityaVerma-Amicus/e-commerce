@@ -1,0 +1,271 @@
+/* =========================
+   Review Section
+   ========================= */
+
+.review-section {
+    width: 100%;
+
+    padding: 1.5rem;
+
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.06);
+
+    box-sizing: border-box;
+}
+
+.review-section > h2 {
+    margin: 0 0 1.5rem;
+
+    color: var(--color-text);
+
+    font-family: var(--font-family-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+/* =========================
+   Review Block
+   ========================= */
+
+.review-block {
+    padding: 1.25rem 0;
+
+    border-top: 1px solid var(--color-border);
+}
+
+.review-block:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+.review-block h3 {
+    margin: 0 0 1rem;
+
+    color: var(--color-text);
+
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+/* =========================
+   Shipping Details
+   ========================= */
+
+.review-details {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 0.85rem 2rem;
+}
+
+.review-details div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.2rem;
+}
+
+.review-details span,
+.review-payment span {
+    color: var(--color-text-secondary);
+
+    font-size: 0.75rem;
+}
+
+.review-details strong,
+.review-payment strong {
+    color: var(--color-text);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* =========================
+   Payment
+   ========================= */
+
+.review-payment {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.35rem;
+}
+
+/* =========================
+   Order Items
+   ========================= */
+
+.review-items {
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+
+    overflow: hidden;
+}
+
+.review-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    padding: 0.85rem 1rem;
+
+    background-color: #ffffff;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-item-info {
+    display: flex;
+    align-items: center;
+
+    gap: 0.75rem;
+
+    min-width: 0;
+}
+
+.review-item-image {
+    width: 3.5rem;
+    height: 3.5rem;
+
+    flex-shrink: 0;
+
+    object-fit: contain;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+}
+
+.review-item-info > div {
+    display: flex;
+    flex-direction: column;
+
+    gap: 0.2rem;
+
+    min-width: 0;
+}
+
+.review-item-name {
+    margin: 0;
+
+    color: var(--color-text);
+
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.review-item-info span {
+    color: var(--color-text-secondary);
+
+    font-size: 0.75rem;
+}
+
+.review-item > strong {
+    flex-shrink: 0;
+
+    color: var(--color-text);
+
+    font-size: 0.85rem;
+}
+
+/* =========================
+   Actions
+   ========================= */
+
+.review-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    gap: 0.75rem;
+
+    margin-top: 1.5rem;
+}
+
+.review-actions button {
+    min-width: 120px;
+
+    padding: 0.7rem 1.25rem;
+
+    border-radius: var(--border-radius-md);
+
+    font-family: var(--font-family-base);
+    font-size: 0.8rem;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.review-back-button {
+    border: 1px solid var(--color-border);
+
+    background-color: #ffffff;
+    color: var(--color-text);
+}
+
+.review-back-button:hover {
+    background-color: var(--color-surface);
+    border-color: #9ca3af;
+}
+
+.review-place-order-button {
+    border: 1px solid var(--color-primary);
+
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.review-place-order-button:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 700px) {
+    .review-details {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .review-section {
+        padding: 1.25rem;
+    }
+
+    .review-item {
+        align-items: flex-start;
+    }
+
+    .review-item-image {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .review-actions {
+        flex-direction: column-reverse;
+    }
+
+    .review-actions button {
+        width: 100%;
+    }
+}

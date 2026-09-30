@@ -1,0 +1,87 @@
+/* =========================
+   Order Summary
+   ========================= */
+
+.order-summary {
+    width: 100%;
+
+    padding: 1.25rem;
+
+    background-color: var(--color-background);
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.06);
+
+    box-sizing: border-box;
+}
+
+.order-summary h2 {
+    margin: 0 0 1.25rem;
+
+    color: var(--color-text);
+
+    font-family: var(--font-family-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* =========================
+   Rows
+   ========================= */
+
+.order-summary-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.order-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0.7rem 0;
+
+    border-bottom: 1px solid var(--color-border);
+}
+
+.order-summary-row span {
+    color: var(--color-text-secondary);
+
+    font-size: 0.8rem;
+}
+
+.order-summary-row strong {
+    color: var(--color-text);
+
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* =========================
+   Total
+   ========================= */
+
+.order-summary-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-top: 1rem;
+}
+
+.order-summary-total span {
+    color: var(--color-text);
+
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.order-summary-total strong {
+    color: var(--color-primary);
+
+    font-size: 1.15rem;
+    font-weight: 700;
+}

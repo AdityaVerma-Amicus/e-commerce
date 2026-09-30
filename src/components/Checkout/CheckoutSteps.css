@@ -1,0 +1,131 @@
+/* =========================
+   Checkout Steps
+   ========================= */
+
+.checkout-steps {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    width: 100%;
+
+    margin-bottom: 2rem;
+
+    position: relative;
+    background-color: #f5f5f5;
+}
+
+/* =========================
+   Step
+   ========================= */
+
+.checkout-step {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 0.5rem;
+
+    color: #6b7280;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    text-align: center;
+
+    z-index: 1;
+}
+
+/* =========================
+   Connecting Line
+   ========================= */
+
+.checkout-step:not(:last-child)::after {
+    content: "";
+
+    position: absolute;
+
+    top: 1rem;
+    left: calc(50% + 1rem);
+
+    width: calc(100% - 2rem);
+    height: 2px;
+
+    background-color: #d1d5db;
+
+    z-index: -1;
+}
+
+.checkout-step.completed:not(:last-child)::after {
+    background-color: var(--color-primary);
+}
+
+/* =========================
+   Step Number
+   ========================= */
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2rem;
+    height: 2rem;
+
+    flex-shrink: 0;
+
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+
+    background-color: #ffffff;
+
+    color: #6b7280;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    box-sizing: border-box;
+}
+
+/* =========================
+   Active / Completed
+   ========================= */
+
+.checkout-step.active .step-number,
+.checkout-step.completed .step-number {
+    border-color: var(--color-primary);
+
+    background-color: var(--color-primary);
+
+    color: #ffffff;
+}
+
+.checkout-step.active span:last-child,
+.checkout-step.completed span:last-child {
+    color: var(--color-text);
+}
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 640px) {
+    .checkout-step {
+        font-size: 0.75rem;
+    }
+
+    .step-number {
+        width: 1.75rem;
+        height: 1.75rem;
+    }
+
+    .checkout-step:not(:last-child)::after {
+        top: 0.875rem;
+
+        left: calc(50% + 0.875rem);
+
+        width: calc(100% - 1.75rem);
+    }
+}
