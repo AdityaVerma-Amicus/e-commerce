@@ -1,5 +1,9 @@
 import {
+  memo,
+  useCallback,
   useEffect,
+  useMemo,
+  useRef,
   useState,
   type ChangeEvent,
   type FocusEvent,
@@ -13,7 +17,7 @@ import {
   type City,
   type Country,
   type State,
-} from "../../services/locationService";
+} from "../../services/cachedLocationService";
 
 import type { ShippingMethod } from "../../types/orders";
 
@@ -38,6 +42,12 @@ export interface ShippingFormData {
   shippingMethod: ShippingMethod | "";
 }
 
+/*
+ * shippingMethod is owned by the parent (CheckoutPage) and arrives as a prop,
+ * so it is NOT stored in local form state anymore. It is merged in on submit.
+ */
+type FormFields = Omit<ShippingFormData, "shippingMethod">;
+
 interface ShippingFormErrors {
   fullName?: string;
   email?: string;
@@ -58,7 +68,7 @@ interface ShippingFormProps {
 
 const CUSTOM_CITY_VALUE = "__custom__";
 
-const initialFormData: ShippingFormData = {
+const initialFormData: FormFields = {
   fullName: "",
   email: "",
   phone: "",
@@ -73,56 +83,197 @@ const initialFormData: ShippingFormData = {
 
   country: "",
   countryName: "",
-
-  shippingMethod: "",
 };
+
+const VALIDATED_FIELDS: ReadonlyArray<keyof ShippingFormErrors> = [
+  "fullName",
+  "email",
+  "phone",
+  "streetAddress",
+  "city",
+  "state",
+  "zip",
+  "country",
+  "shippingMethod",
+];
+
+const SHIPPING_OPTIONS: ReadonlyArray<{
+  value: ShippingMethod;
+  label: string;
+}> = [
+  { value: "standard", label: "Standard ($5)" },
+  { value: "express", label: "Express ($15)" },
+  { value: "overnight", label: "Overnight ($25)" },
+];
+
+/*
+ * Pure validation (module level) so it never changes identity and the
+ * handlers that use it can stay stable across keystrokes.
+ */
+function validateField(
+  fieldName: keyof ShippingFormErrors,
+  data: FormFields,
+  shippingMethod: ShippingMethod | "",
+): string | undefined {
+  switch (fieldName) {
+    case "fullName": {
+      const value = data.fullName.trim();
+
+      if (!value) return "Full Name is required";
+      if (value.length > 120) return "Full Name must be 120 characters or less";
+
+      return undefined;
+    }
+
+    case "email": {
+      const value = data.email.trim();
+
+      if (!value) return "Email is required";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return "Enter a valid email address";
+      }
+
+      return undefined;
+    }
+
+    case "phone": {
+      const value = data.phone.trim();
+
+      if (!value) return "Phone is required";
+      if (value.length > 20) return "Phone must be 20 characters or less";
+      if (!/^[+\d\s()-]+$/.test(value)) {
+        return "Phone can contain numbers, +, -, spaces, and parentheses only";
+      }
+
+      return undefined;
+    }
+
+    case "streetAddress":
+      return data.streetAddress.trim()
+        ? undefined
+        : "Street Address is required";
+
+    case "city":
+      return data.city.trim() ? undefined : "City is required";
+
+    case "state":
+      return data.state.trim() ? undefined : "State is required";
+
+    case "zip": {
+      const value = data.zip.trim();
+
+      if (!value) return "ZIP is required";
+      if (!/^\d{5,6}$/.test(value)) return "ZIP must be 5-6 digits";
+
+      return undefined;
+    }
+
+    case "country":
+      return data.country.trim() ? undefined : "Country is required";
+
+    case "shippingMethod":
+      return shippingMethod ? undefined : "Shipping method is required";
+
+    default:
+      return undefined;
+  }
+}
+
+/*
+ * Memoized option lists.
+ *
+ * These only re-render when their list changes, so typing in any other
+ * field no longer reconciles hundreds/thousands of <option> elements.
+ */
+const CountryOptions = memo(function CountryOptions({
+  countries,
+}: {
+  countries: Country[];
+}) {
+  return (
+    <>
+      {countries.map((country) => (
+        <option key={country.id} value={country.iso2}>
+          {country.name}
+        </option>
+      ))}
+    </>
+  );
+});
+
+const StateOptions = memo(function StateOptions({
+  states,
+}: {
+  states: State[];
+}) {
+  return (
+    <>
+      {states.map((state) => (
+        <option key={state.id} value={state.stateCode}>
+          {state.name}
+        </option>
+      ))}
+    </>
+  );
+});
+
+const CityOptions = memo(function CityOptions({ cities }: { cities: City[] }) {
+  return (
+    <>
+      {cities.map((city) => (
+        <option key={city.id} value={city.name}>
+          {city.name}
+        </option>
+      ))}
+    </>
+  );
+});
 
 function ShippingForm({
   onSubmit,
   shippingMethod,
   onShippingMethodChange,
 }: ShippingFormProps) {
-  const [formData, setFormData] = useState<ShippingFormData>(initialFormData);
+  /*
+   * One centralized form state (shippingMethod lives in the parent).
+   */
+  const [formData, setFormData] = useState<FormFields>(initialFormData);
 
   const [errors, setErrors] = useState<ShippingFormErrors>({});
 
   const [countries, setCountries] = useState<Country[]>([]);
-
   const [states, setStates] = useState<State[]>([]);
-
   const [cities, setCities] = useState<City[]>([]);
 
   const [customCity, setCustomCity] = useState("");
-
   const [isCustomCity, setIsCustomCity] = useState(false);
 
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
-
   const [isLoadingStates, setIsLoadingStates] = useState(false);
-
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   const [countryError, setCountryError] = useState("");
-
   const [stateError, setStateError] = useState("");
-
   const [cityError, setCityError] = useState("");
 
   /*
-   * Keep the form data in sync with
-   * the shipping method controlled by CheckoutPage.
+   * Latest values for stable event handlers (blur / submit read from these
+   * instead of closing over state, so their identity never changes).
    */
+  const formDataRef = useRef(formData);
+  const shippingMethodRef = useRef(shippingMethod);
+
   useEffect(() => {
-    setFormData((previousData) => ({
-      ...previousData,
-      shippingMethod,
-    }));
-  }, [shippingMethod]);
+    formDataRef.current = formData;
+    shippingMethodRef.current = shippingMethod;
+  }, [formData, shippingMethod]);
 
   /*
-   * Fetch Countries
+   * Fetch Countries (cached)
    */
   useEffect(() => {
+    let cancelled = false;
+
     const loadCountries = async () => {
       try {
         setIsLoadingCountries(true);
@@ -130,23 +281,32 @@ function ShippingForm({
 
         const data = await fetchCountries();
 
-        setCountries(data);
+        if (!cancelled) {
+          setCountries(data);
+        }
       } catch (error) {
+        if (cancelled) return;
+
         console.error("Failed to fetch countries:", error);
 
         setCountries([]);
-
         setCountryError("Unable to load countries. Please try again.");
       } finally {
-        setIsLoadingCountries(false);
+        if (!cancelled) {
+          setIsLoadingCountries(false);
+        }
       }
     };
 
     loadCountries();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /*
-   * Fetch States
+   * Fetch States (cached)
    */
   useEffect(() => {
     if (!formData.country) {
@@ -155,6 +315,8 @@ function ShippingForm({
       return;
     }
 
+    let cancelled = false;
+
     const loadStates = async () => {
       try {
         setIsLoadingStates(true);
@@ -162,26 +324,32 @@ function ShippingForm({
 
         const data = await fetchStates(formData.country);
 
-        setStates(data);
+        if (!cancelled) {
+          setStates(data);
+        }
       } catch (error) {
+        if (cancelled) return;
+
         console.error("Failed to fetch states:", error);
 
         setStates([]);
-
         setStateError("Unable to load states. Please try again.");
       } finally {
-        setIsLoadingStates(false);
+        if (!cancelled) {
+          setIsLoadingStates(false);
+        }
       }
     };
 
     loadStates();
+
+    return () => {
+      cancelled = true;
+    };
   }, [formData.country]);
 
   /*
-   * Fetch Cities
-   *
-   * Cities are fetched only after both
-   * country and state have been selected.
+   * Fetch Cities (cached)
    */
   useEffect(() => {
     if (!formData.country || !formData.state) {
@@ -189,6 +357,8 @@ function ShippingForm({
       setIsLoadingCities(false);
       return;
     }
+
+    let cancelled = false;
 
     const loadCities = async () => {
       try {
@@ -198,219 +368,245 @@ function ShippingForm({
 
         const data = await fetchCities(formData.country, formData.state);
 
+        if (cancelled) return;
+
         setCities(data);
 
         if (data.length === 0) {
           setCityError("No cities found. You can enter the city manually.");
         }
       } catch (error) {
+        if (cancelled) return;
+
         console.error("Failed to fetch cities:", error);
 
         setCities([]);
-
         setCityError("Unable to load cities. You can enter the city manually.");
       } finally {
-        setIsLoadingCities(false);
+        if (!cancelled) {
+          setIsLoadingCities(false);
+        }
       }
     };
 
     loadCities();
+
+    return () => {
+      cancelled = true;
+    };
   }, [formData.country, formData.state]);
 
   /*
-   * Handle Input / Select Changes
+   * Lookup maps (only rebuilt when the lists change).
    */
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value } = event.target;
+  const countryMap = useMemo(() => {
+    const map = new Map<string, Country>();
+    countries.forEach((country) => map.set(country.iso2, country));
+    return map;
+  }, [countries]);
 
-    /*
-     * Country:
-     * Store both the country code and country name.
-     */
-    if (name === "country") {
-      const selectedCountry = countries.find(
-        (country) => country.iso2 === value,
-      );
+  const stateMap = useMemo(() => {
+    const map = new Map<string, State>();
+    states.forEach((state) => map.set(state.stateCode, state));
+    return map;
+  }, [states]);
+
+  /*
+   * Clear one field's error. Returns the same object when there is nothing
+   * to clear, so React skips the re-render entirely.
+   */
+  const clearError = useCallback((field: keyof ShippingFormErrors) => {
+    setErrors((previousErrors) =>
+      previousErrors[field]
+        ? { ...previousErrors, [field]: undefined }
+        : previousErrors,
+    );
+  }, []);
+
+  /*
+   * Handle Input / Select Changes
+   * No longer depends on `errors`, so identity only changes when the
+   * country/state lists load.
+   */
+  const handleChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = event.target;
+
+      /*
+       * Country selection resets dependent fields.
+       */
+      if (name === "country") {
+        const selectedCountry = countryMap.get(value);
+
+        setFormData((previousData) => ({
+          ...previousData,
+          country: value,
+          countryName: selectedCountry?.name ?? "",
+          state: "",
+          stateName: "",
+          city: "",
+        }));
+
+        setIsCustomCity(false);
+        setCustomCity("");
+
+        setErrors((previousErrors) =>
+          previousErrors.country || previousErrors.state || previousErrors.city
+            ? {
+                ...previousErrors,
+                country: undefined,
+                state: undefined,
+                city: undefined,
+              }
+            : previousErrors,
+        );
+
+        return;
+      }
+
+      /*
+       * State selection resets city.
+       */
+      if (name === "state") {
+        const selectedState = stateMap.get(value);
+
+        setFormData((previousData) => ({
+          ...previousData,
+          state: value,
+          stateName: selectedState?.name ?? "",
+          city: "",
+        }));
+
+        setIsCustomCity(false);
+        setCustomCity("");
+
+        setErrors((previousErrors) =>
+          previousErrors.state || previousErrors.city
+            ? { ...previousErrors, state: undefined, city: undefined }
+            : previousErrors,
+        );
+
+        return;
+      }
+
+      /*
+       * Custom city option.
+       */
+      if (name === "city" && value === CUSTOM_CITY_VALUE) {
+        setIsCustomCity(true);
+        setCustomCity("");
+
+        setFormData((previousData) => ({
+          ...previousData,
+          city: "",
+        }));
+
+        clearError("city");
+
+        return;
+      }
 
       setFormData((previousData) => ({
         ...previousData,
-
-        country: value,
-        countryName: selectedCountry?.name ?? "",
-
-        state: "",
-        stateName: "",
-
-        city: "",
+        [name]: value,
       }));
 
-      setCustomCity("");
-      setIsCustomCity(false);
-
-      return;
-    }
-
-    /*
-     * State:
-     * Store both the state code and state name.
-     */
-    if (name === "state") {
-      const selectedState = states.find((state) => state.stateCode === value);
-
-      setFormData((previousData) => ({
-        ...previousData,
-
-        state: value,
-        stateName: selectedState?.name ?? "",
-
-        city: "",
-      }));
-
-      setCustomCity("");
-      setIsCustomCity(false);
-
-      return;
-    }
-
-    /*
-     * Normal input/select fields.
-     */
-    setFormData((previousData) => ({
-      ...previousData,
-      [name]: value,
-    }));
-  };
+      /*
+       * Clear the field error as soon as the user starts correcting it.
+       */
+      clearError(name as keyof ShippingFormErrors);
+    },
+    [countryMap, stateMap, clearError],
+  );
 
   /*
    * Handle Custom City
    */
-  const handleCustomCityChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.target;
+  const handleCustomCityChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
 
-    setCustomCity(value);
+      setCustomCity(value);
 
-    setFormData((previousData) => ({
-      ...previousData,
-      city: value,
-    }));
+      setFormData((previousData) => ({
+        ...previousData,
+        city: value,
+      }));
 
-    setErrors((previousErrors) => ({
-      ...previousErrors,
-      city: undefined,
-    }));
-
-    setCityError("");
-  };
-
-  /*
-   * Validate Form
-   */
-  const validateForm = (): ShippingFormErrors => {
-    const newErrors: ShippingFormErrors = {};
-
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full Name is required";
-    }
-
-    if (formData.fullName.trim().length > 120) {
-      newErrors.fullName = "Full Name must be 120 characters or less";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
-      newErrors.email = "Enter a valid email address";
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone is required";
-    } else if (formData.phone.trim().length > 20) {
-      newErrors.phone = "Phone must be 20 characters or less";
-    } else if (!/^[+\d\s()-]+$/.test(formData.phone.trim())) {
-      newErrors.phone =
-        "Phone can contain numbers, +, -, spaces, and parentheses only";
-    }
-
-    if (!formData.streetAddress.trim()) {
-      newErrors.streetAddress = "Street Address is required";
-    }
-
-    if (!formData.city.trim()) {
-      newErrors.city = "City is required";
-    }
-
-    if (!formData.state.trim()) {
-      newErrors.state = "State is required";
-    }
-
-    if (!formData.zip.trim()) {
-      newErrors.zip = "ZIP is required";
-    } else if (!/^\d{5,6}$/.test(formData.zip.trim())) {
-      newErrors.zip = "ZIP must be 5-6 digits";
-    }
-
-    if (!formData.country.trim()) {
-      newErrors.country = "Country is required";
-    }
-
-    if (!formData.shippingMethod) {
-      newErrors.shippingMethod = "Shipping method is required";
-    }
-
-    return newErrors;
-  };
+      clearError("city");
+      setCityError("");
+    },
+    [clearError],
+  );
 
   /*
-   * Validate Individual Field on Blur
+   * Validate only the field that lost focus.
+   * Stable identity: reads the latest values from refs.
    */
-  const handleBlur = (
-    event: FocusEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name } = event.target;
+  const handleBlur = useCallback(
+    (event: FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const fieldName = event.target.name as keyof ShippingFormErrors;
 
-    const validationErrors = validateForm();
+      if (!VALIDATED_FIELDS.includes(fieldName)) {
+        return;
+      }
 
-    setErrors((previousErrors) => ({
-      ...previousErrors,
-      [name]: validationErrors[name as keyof ShippingFormErrors],
-    }));
-  };
+      const error = validateField(
+        fieldName,
+        formDataRef.current,
+        shippingMethodRef.current,
+      );
+
+      setErrors((previousErrors) =>
+        previousErrors[fieldName] === error
+          ? previousErrors
+          : { ...previousErrors, [fieldName]: error },
+      );
+    },
+    [],
+  );
 
   /*
    * Submit Form
    */
-  const handleSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = useCallback(
+    (event: SyntheticEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-    const validationErrors = validateForm();
+      const data = formDataRef.current;
+      const method = shippingMethodRef.current;
 
-    setErrors(validationErrors);
+      const validationErrors: ShippingFormErrors = {};
 
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+      VALIDATED_FIELDS.forEach((field) => {
+        const error = validateField(field, data, method);
 
-    onSubmit(formData);
-  };
+        if (error) {
+          validationErrors[field] = error;
+        }
+      });
+
+      setErrors(validationErrors);
+
+      if (Object.keys(validationErrors).length > 0) {
+        return;
+      }
+
+      onSubmit({ ...data, shippingMethod: method });
+    },
+    [onSubmit],
+  );
 
   /*
-   * Shipping Method Change
+   * Shipping Method Change (state lives in the parent)
    */
-  const handleShippingMethodChange = (method: ShippingMethod) => {
-    onShippingMethodChange(method);
-
-    setFormData((previousData) => ({
-      ...previousData,
-      shippingMethod: method,
-    }));
-
-    setErrors((previousErrors) => ({
-      ...previousErrors,
-      shippingMethod: undefined,
-    }));
-  };
+  const handleShippingMethodChange = useCallback(
+    (method: ShippingMethod) => {
+      onShippingMethodChange(method);
+      clearError("shippingMethod");
+    },
+    [onShippingMethodChange, clearError],
+  );
 
   return (
     <main className="shipping-form-container">
@@ -428,6 +624,7 @@ function ShippingForm({
               id="fullName"
               name="fullName"
               type="text"
+              autoComplete="name"
               value={formData.fullName}
               maxLength={120}
               onChange={handleChange}
@@ -447,6 +644,7 @@ function ShippingForm({
               id="email"
               name="email"
               type="email"
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -464,7 +662,8 @@ function ShippingForm({
             <input
               id="phone"
               name="phone"
-              type="text"
+              type="tel"
+              autoComplete="tel"
               value={formData.phone}
               maxLength={20}
               onChange={handleChange}
@@ -484,6 +683,7 @@ function ShippingForm({
               id="streetAddress"
               name="streetAddress"
               type="text"
+              autoComplete="address-line1"
               value={formData.streetAddress}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -502,6 +702,7 @@ function ShippingForm({
               id="aptSuite"
               name="aptSuite"
               type="text"
+              autoComplete="address-line2"
               value={formData.aptSuite}
               onChange={handleChange}
             />
@@ -529,11 +730,7 @@ function ShippingForm({
                     : "Select country"}
                 </option>
 
-                {countries.map((country) => (
-                  <option key={country.id} value={country.iso2}>
-                    {country.name}
-                  </option>
-                ))}
+                <CountryOptions countries={countries} />
               </select>
 
               {errors.country && <p className="form-error">{errors.country}</p>}
@@ -563,11 +760,7 @@ function ShippingForm({
                       : "Select state"}
                 </option>
 
-                {states.map((state) => (
-                  <option key={state.id} value={state.stateCode}>
-                    {state.name}
-                  </option>
-                ))}
+                <StateOptions states={states} />
               </select>
 
               {errors.state && <p className="form-error">{errors.state}</p>}
@@ -598,11 +791,7 @@ function ShippingForm({
                         : "Select city"}
                   </option>
 
-                  {cities.map((city) => (
-                    <option key={city.id} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
+                  <CityOptions cities={cities} />
 
                   <option value={CUSTOM_CITY_VALUE}>
                     Other / Enter manually
@@ -613,6 +802,8 @@ function ShippingForm({
                   id="city"
                   name="city"
                   type="text"
+                  autoComplete="address-level2"
+                  autoFocus
                   value={customCity}
                   onChange={handleCustomCityChange}
                   onBlur={handleBlur}
@@ -635,6 +826,7 @@ function ShippingForm({
                 id="zip"
                 name="zip"
                 type="text"
+                autoComplete="postal-code"
                 value={formData.zip}
                 onChange={handleChange}
                 onBlur={handleBlur}
@@ -652,38 +844,18 @@ function ShippingForm({
           </h2>
 
           <div className="shipping-methods">
-            <label>
-              <input
-                type="radio"
-                name="shippingMethod"
-                value="standard"
-                checked={formData.shippingMethod === "standard"}
-                onChange={() => handleShippingMethodChange("standard")}
-              />
-              Standard ($5)
-            </label>
-
-            <label>
-              <input
-                type="radio"
-                name="shippingMethod"
-                value="express"
-                checked={formData.shippingMethod === "express"}
-                onChange={() => handleShippingMethodChange("express")}
-              />
-              Express ($15)
-            </label>
-
-            <label>
-              <input
-                type="radio"
-                name="shippingMethod"
-                value="overnight"
-                checked={formData.shippingMethod === "overnight"}
-                onChange={() => handleShippingMethodChange("overnight")}
-              />
-              Overnight ($25)
-            </label>
+            {SHIPPING_OPTIONS.map(({ value, label }) => (
+              <label key={value}>
+                <input
+                  type="radio"
+                  name="shippingMethod"
+                  value={value}
+                  checked={shippingMethod === value}
+                  onChange={() => handleShippingMethodChange(value)}
+                />
+                {label}
+              </label>
+            ))}
 
             {errors.shippingMethod && (
               <p className="form-error">{errors.shippingMethod}</p>
@@ -701,4 +873,4 @@ function ShippingForm({
   );
 }
 
-export default ShippingForm;
+export default memo(ShippingForm);

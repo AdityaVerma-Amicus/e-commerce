@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useCallback,
   useEffect,
   useMemo,
   useReducer,
@@ -9,33 +10,20 @@ import {
 
 import type { Product } from "../data/products";
 
-import {
-  fetchCart,
-  getStoredCart,
-  saveCart,
-} from "../services/cartServices";
+import { fetchCart, getStoredCart, saveCart } from "../services/cartServices";
 
-import {
-  cartReducer,
-  type CartState,
-} from "./cartReducer";
+import { cartReducer, type CartState } from "./cartReducer";
 
 import type { ShippingMethod } from "../types/orders";
 
 interface CartContextValue {
   items: CartState["items"];
 
-  addItem: (
-    product: Product,
-    quantity: number,
-  ) => void;
+  addItem: (product: Product, quantity: number) => void;
 
   removeItem: (id: number) => void;
 
-  updateQty: (
-    id: number,
-    quantity: number,
-  ) => void;
+  updateQty: (id: number, quantity: number) => void;
 
   clearCart: () => void;
 
@@ -45,38 +33,24 @@ interface CartContextValue {
 
   shippingMethod: ShippingMethod;
 
-  setShippingMethod: (
-    method: ShippingMethod,
-  ) => void;
+  setShippingMethod: (method: ShippingMethod) => void;
 
   isLoading: boolean;
 }
 
-const CartContext =
-  createContext<CartContextValue | null>(null);
+const CartContext = createContext<CartContextValue | null>(null);
 
 const initialState: CartState = {
   items: [],
   isLoading: true,
 };
 
-const DEFAULT_SHIPPING_METHOD: ShippingMethod =
-  "standard";
+const DEFAULT_SHIPPING_METHOD: ShippingMethod = "standard";
 
-export function CartProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [state, dispatch] = useReducer(
-    cartReducer,
-    initialState,
-  );
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  const [
-    shippingMethod,
-    setShippingMethodState,
-  ] = useState<ShippingMethod>(
+  const [shippingMethod, setShippingMethodState] = useState<ShippingMethod>(
     DEFAULT_SHIPPING_METHOD,
   );
 
@@ -108,10 +82,7 @@ export function CartProvider({
 
         saveCart(apiCart);
       } catch (error) {
-        console.error(
-          "Failed to load cart:",
-          error,
-        );
+        console.error("Failed to load cart:", error);
       } finally {
         dispatch({
           type: "SET_LOADING",
@@ -129,15 +100,9 @@ export function CartProvider({
     }
 
     saveCart(state.items);
-  }, [
-    state.items,
-    state.isLoading,
-  ]);
+  }, [state.items, state.isLoading]);
 
-  const addItem = (
-    product: Product,
-    quantity: number,
-  ) => {
+  const addItem = useCallback((product: Product, quantity: number) => {
     dispatch({
       type: "ADD_ITEM",
       payload: {
@@ -145,19 +110,16 @@ export function CartProvider({
         quantity,
       },
     });
-  };
+  }, []);
 
-  const removeItem = (id: number) => {
+  const removeItem = useCallback((id: number) => {
     dispatch({
       type: "REMOVE_ITEM",
       payload: id,
     });
-  };
+  }, []);
 
-  const updateQty = (
-    id: number,
-    quantity: number,
-  ) => {
+  const updateQty = useCallback((id: number, quantity: number) => {
     dispatch({
       type: "UPDATE_QTY",
       payload: {
@@ -165,72 +127,71 @@ export function CartProvider({
         quantity,
       },
     });
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     dispatch({
       type: "CLEAR_CART",
     });
-  };
+  }, []);
 
-  const setShippingMethod = (
-    method: ShippingMethod,
-  ) => {
+  const setShippingMethod = useCallback((method: ShippingMethod) => {
     setShippingMethodState(method);
-  };
+  }, []);
 
   const totalItems = useMemo(
-    () =>
-      state.items.reduce(
-        (total, item) =>
-          total + item.quantity,
-        0,
-      ),
+    () => state.items.reduce((total, item) => total + item.quantity, 0),
     [state.items],
   );
 
   const subtotal = useMemo(
     () =>
       state.items.reduce(
-        (total, item) =>
-          total +
-          item.price * item.quantity,
+        (total, item) => total + item.price * item.quantity,
         0,
       ),
     [state.items],
   );
 
-  const value: CartContextValue = {
-    items: state.items,
+  const value = useMemo<CartContextValue>(
+    () => ({
+      items: state.items,
 
-    addItem,
-    removeItem,
-    updateQty,
-    clearCart,
+      addItem,
+      removeItem,
+      updateQty,
+      clearCart,
 
-    totalItems,
-    subtotal,
+      totalItems,
+      subtotal,
 
-    shippingMethod,
-    setShippingMethod,
+      shippingMethod,
+      setShippingMethod,
 
-    isLoading: state.isLoading,
-  };
-
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
+      isLoading: state.isLoading,
+    }),
+    [
+      state.items,
+      state.isLoading,
+      addItem,
+      removeItem,
+      updateQty,
+      clearCart,
+      totalItems,
+      subtotal,
+      shippingMethod,
+      setShippingMethod,
+    ],
   );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCartContext(): CartContextValue {
   const context = useContext(CartContext);
 
   if (!context) {
-    throw new Error(
-      "useCartContext must be used inside CartProvider",
-    );
+    throw new Error("useCartContext must be used inside CartProvider");
   }
 
   return context;

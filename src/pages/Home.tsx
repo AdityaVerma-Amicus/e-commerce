@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Hero from "../components/Hero/Hero";
@@ -9,39 +10,42 @@ import PageContainer from "../components/Layout/PageContainer/PageContainer";
 import { useCart } from "../hooks/useCart";
 
 function Home() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const { addItem } = useCart();
+  const { addItem } = useCart();
 
-    const handleSearch = (query: string) => {
-        const trimmedQuery = query.trim();
+  const handleAddToCart = useCallback(
+    (product: Parameters<typeof addItem>[0], quantity: number) => {
+      addItem(product, quantity);
+    },
+    [addItem],
+  );
 
-        if (!trimmedQuery) {
-            return;
-        }
+  const handleSearch = (query: string) => {
+    const trimmedQuery = query.trim();
 
-        navigate(
-            `/products?q=${encodeURIComponent(trimmedQuery)}`
-        );
-    };
+    if (!trimmedQuery) {
+      return;
+    }
 
-    return (
-        <>
-            <Hero onSearch={handleSearch} />
+    navigate(`/products?q=${encodeURIComponent(trimmedQuery)}`);
+  };
 
-            <main>
-                <PageContainer>
-                    <Categories />
+  return (
+    <>
+      <Hero onSearch={handleSearch} />
 
-                    <FeaturedParts
-                        onAddToCart={addItem}
-                    />
+      <main>
+        <PageContainer>
+          <Categories />
 
-                    <PopularCategories />
-                </PageContainer>
-            </main>
-        </>
-    );
+          <FeaturedParts onAddToCart={handleAddToCart} />
+
+          <PopularCategories />
+        </PageContainer>
+      </main>
+    </>
+  );
 }
 
 export default Home;

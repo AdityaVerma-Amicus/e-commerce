@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ProductGrid from "../ProductGrid/ProductGrid";
 import Pagination from "../Pagination/Pagination";
@@ -60,18 +60,8 @@ function ProductListing({
 
   const [showAllCategories, setShowAllCategories] = useState(false);
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  /*
-   * Generic data fetching for categories.
-   * useFetch handles:
-   * - API request
-   * - loading state
-   * - error state
-   * - AbortController
-   * - cleanup
-   * - refetch
-   */
   const {
     data: categories,
     loading: categoriesLoading,
@@ -102,48 +92,69 @@ function ProductListing({
     refresh(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
 
-  const getSortParams = () =>
-    SORT_OPTIONS[sortOption] ?? {
-      sortBy: "",
-      order: "",
-    };
+  const sortParams = useMemo(
+    () =>
+      SORT_OPTIONS[sortOption] ?? {
+        sortBy: "",
+        order: "",
+      },
+    [sortOption],
+  );
 
-  const refreshProducts = (
-    search: string = searchTerm,
-    category: string = selectedCategory,
-  ) => {
-    const { sortBy, order } = getSortParams();
-
-    refresh(search, category === "all" ? "" : category, sortBy, order);
-  };
-
-  const handleSortChange = (value: string) => {
-    const { sortBy, order } = SORT_OPTIONS[value] ?? {
-      sortBy: "",
-      order: "",
-    };
-
-    setSortOption(value);
-
-    refresh(
+  const refreshProducts = useCallback(
+    (search: string = searchTerm, category: string = selectedCategory) => {
+      refresh(
+        search,
+        category === "all" ? "" : category,
+        sortParams.sortBy,
+        sortParams.order,
+      );
+    },
+    [
+      refresh,
       searchTerm,
-      selectedCategory === "all" ? "" : selectedCategory,
-      sortBy,
-      order,
-    );
-  };
+      selectedCategory,
+      sortParams.sortBy,
+      sortParams.order,
+    ],
+  );
 
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
+  const handleSortChange = useCallback(
+    (value: string) => {
+      const nextSort = SORT_OPTIONS[value] ?? {
+        sortBy: "",
+        order: "",
+      };
 
-    refreshProducts(searchTerm, value);
-  };
+      setSortOption(value);
+
+      refresh(
+        searchTerm,
+        selectedCategory === "all" ? "" : selectedCategory,
+        nextSort.sortBy,
+        nextSort.order,
+      );
+    },
+    [refresh, searchTerm, selectedCategory],
+  );
+
+  const handleCategoryChange = useCallback(
+    (value: string) => {
+      setSelectedCategory(value);
+      refreshProducts(searchTerm, value);
+    },
+    [refreshProducts, searchTerm],
+  );
 
   const categoryList = categories ?? [];
 
-  const visibleCategories = showAllCategories
-    ? categoryList
-    : categoryList.slice(0, INITIAL_CATEGORY_COUNT);
+  const visibleCategories = useMemo(
+    () =>
+      showAllCategories
+        ? categoryList
+        : categoryList.slice(0, INITIAL_CATEGORY_COUNT),
+    [categoryList, showAllCategories],
+  );
 
   const startResult =
     totalResults === 0 ? 0 : (currentPage - 1) * PRODUCT_PAGE_SIZE + 1;
@@ -160,7 +171,6 @@ function ProductListing({
           </h2>
 
           <div>
-            {/* All Categories */}
             <div className="mb-3">
               <RadioOption
                 name="category"
@@ -171,14 +181,12 @@ function ProductListing({
               />
             </div>
 
-            {/* Category Loading */}
             {categoriesLoading && (
               <p className="text-sm text-text-secondary">
                 Loading categories...
               </p>
             )}
 
-            {/* Category Error */}
             {!categoriesLoading && categoriesError && (
               <div className="space-y-2">
                 <p className="text-sm text-red-600">{categoriesError}</p>
@@ -193,7 +201,6 @@ function ProductListing({
               </div>
             )}
 
-            {/* Category List */}
             {!categoriesLoading && !categoriesError && (
               <>
                 <div
@@ -217,7 +224,6 @@ function ProductListing({
                   ))}
                 </div>
 
-                {/* View All / Show Less */}
                 {categoryList.length > INITIAL_CATEGORY_COUNT && (
                   <button
                     type="button"
@@ -240,13 +246,11 @@ function ProductListing({
           <div className="mb-5 min-h-10">
             {!loading && !error && (
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                {/* Result Count */}
                 <p className="text-sm text-text-secondary">
                   Showing {startResult}–{endResult} of {totalResults}
                   {searchTerm && ` for "${searchTerm}"`}
                 </p>
 
-                {/* Sort + Refresh */}
                 <div className="flex items-center gap-3">
                   <label htmlFor="sort-products" className="sr-only">
                     Sort products
