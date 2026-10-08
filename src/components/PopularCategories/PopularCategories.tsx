@@ -1,6 +1,6 @@
 import "./PopularCategories.css";
 import { popularCategories } from "../../data/popularCategories";
-import Container from "../layout/PageContainer/PageContainer";
+import Container from "../Layout/PageContainer/PageContainer";
 
 function PopularCategories() {
   return (

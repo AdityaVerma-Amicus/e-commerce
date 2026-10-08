@@ -1,5 +1,5 @@
 import "./Categories.css";
-import Container from "../layout/PageContainer/PageContainer";
+import Container from "../Layout/PageContainer/PageContainer";
 import CategoryCard from "./CategoryCard/CategoryCard";
 import { categories } from "../../data/categories";
 
