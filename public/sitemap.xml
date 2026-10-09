@@ -1,0 +1,11 @@
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://e-commerce-orpin-pi-23.vercel.app/</loc>
+  </url>
+  <url>
+    <loc>https://e-commerce-orpin-pi-23.vercel.app/products</loc>
+  </url>
+</urlset>
+```
