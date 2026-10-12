@@ -1,0 +1,5 @@
+
+User-agent: *
+Allow: /
+
+Sitemap: https://e-commerce-orpin-pi-23.vercel.app/sitemap.xml
