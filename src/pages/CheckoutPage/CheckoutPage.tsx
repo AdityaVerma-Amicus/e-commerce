@@ -22,13 +22,10 @@ import ReviewSection from "../../components/Checkout/ReviewSection";
 import { saveOrder } from "../../services/orderServices";
 
 import type { Order } from "../../types/orders";
-
+import SEO from "../../components/SEO/SEO";
 import "./CheckoutPage.css";
 
-type CheckoutStep =
-  | "shipping"
-  | "payment"
-  | "review";
+type CheckoutStep = "shipping" | "payment" | "review";
 
 const SHIPPING_RATES = {
   standard: 5,
@@ -48,14 +45,13 @@ function CheckoutPage() {
 
   const navigate = useNavigate();
 
-  const [currentStep, setCurrentStep] =
-    useState<CheckoutStep>("shipping");
+  const [currentStep, setCurrentStep] = useState<CheckoutStep>("shipping");
 
-  const [shippingData, setShippingData] =
-    useState<ShippingFormData | null>(null);
+  const [shippingData, setShippingData] = useState<ShippingFormData | null>(
+    null,
+  );
 
-  const [paymentData, setPaymentData] =
-    useState<PaymentFormData | null>(null);
+  const [paymentData, setPaymentData] = useState<PaymentFormData | null>(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -69,22 +65,14 @@ function CheckoutPage() {
         replace: true,
       });
     }
-  }, [
-    items,
-    isLoading,
-    navigate,
-  ]);
+  }, [items, isLoading, navigate]);
 
-  const handleShippingSubmit = (
-    data: ShippingFormData,
-  ) => {
+  const handleShippingSubmit = (data: ShippingFormData) => {
     setShippingData(data);
     setCurrentStep("payment");
   };
 
-  const handlePaymentSubmit = (
-    data: PaymentFormData,
-  ) => {
+  const handlePaymentSubmit = (data: PaymentFormData) => {
     setPaymentData(data);
     setCurrentStep("review");
   };
@@ -94,72 +82,56 @@ function CheckoutPage() {
       return;
     }
 
-    const selectedShippingMethod =
-      shippingData.shippingMethod;
+    const selectedShippingMethod = shippingData.shippingMethod;
 
     if (!selectedShippingMethod) {
       return;
     }
 
-    const shippingCost =
-      SHIPPING_RATES[selectedShippingMethod];
+    const shippingCost = SHIPPING_RATES[selectedShippingMethod];
 
     const tax = subtotal * 0.08;
 
-    const total =
-      subtotal +
-      shippingCost +
-      tax;
+    const total = subtotal + shippingCost + tax;
 
     const order: Order = {
       items: [...items],
 
-      shipping:
-        selectedShippingMethod,
+      shipping: selectedShippingMethod,
 
       total,
 
-      date:
-        new Date().toISOString(),
+      date: new Date().toISOString(),
 
       status: "Processing",
     };
 
     saveOrder(order);
 
-    console.log(
-      "Order placed successfully:",
-      {
-        order,
+    console.log("Order placed successfully:", {
+      order,
 
-        shippingDetails:
-          shippingData,
+      shippingDetails: shippingData,
 
-        paymentDetails: {
-          cardholderName:
-            paymentData.cardholderName,
+      paymentDetails: {
+        cardholderName: paymentData.cardholderName,
 
-          cardNumber:
-            `**** **** **** ${paymentData.cardNumber.slice(-4)}`,
+        cardNumber: `**** **** **** ${paymentData.cardNumber.slice(-4)}`,
 
-          expiryDate:
-            paymentData.expiryDate,
-        },
-
-        pricing: {
-          subtotal,
-          shipping: shippingCost,
-          tax,
-          total,
-        },
+        expiryDate: paymentData.expiryDate,
       },
-    );
+
+      pricing: {
+        subtotal,
+        shipping: shippingCost,
+        tax,
+        total,
+      },
+    });
 
     clearCart();
 
-    alert(
-      "Order placed successfully!",
-    );
+    alert("Order placed successfully!");
 
     navigate("/orders");
   };
@@ -168,9 +140,7 @@ function CheckoutPage() {
     return (
       <PageContainer className="checkout-page-container">
         <main className="checkout-page">
-          <p className="checkout-loading">
-            Loading checkout...
-          </p>
+          <p className="checkout-loading">Loading checkout...</p>
         </main>
       </PageContainer>
     );
@@ -181,106 +151,79 @@ function CheckoutPage() {
   }
 
   return (
-    <PageContainer className="checkout-page-container">
-      <main className="checkout-page">
-
-        {/* =========================
+    <>
+      {" "}
+      <SEO
+        title="Checkout | E-Commerce"
+        description="Complete your shipping and payment details to place your order."
+        canonicalPath="/checkout"
+        noIndex
+      />
+      <PageContainer className="checkout-page-container">
+        <main className="checkout-page">
+          {/* =========================
             CHECKOUT HEADER
            ========================= */}
 
-        <div className="checkout-title">
-          <h1>Checkout</h1>
-        </div>
+          <div className="checkout-title">
+            <h1>Checkout</h1>
+          </div>
 
-        {/* =========================
+          {/* =========================
             CHECKOUT STEPS
            ========================= */}
 
-        <CheckoutSteps
-          currentStep={currentStep}
-        />
+          <CheckoutSteps currentStep={currentStep} />
 
-        {/* =========================
+          {/* =========================
             CHECKOUT CARD
            ========================= */}
 
-        <div className="checkout-card">
-
-          <div className="checkout-layout">
-
-            {/* =========================
+          <div className="checkout-card">
+            <div className="checkout-layout">
+              {/* =========================
                 CHECKOUT CONTENT
                ========================= */}
 
-            <section className="checkout-form-section">
+              <section className="checkout-form-section">
+                {currentStep === "shipping" && (
+                  <ShippingForm
+                    onSubmit={handleShippingSubmit}
+                    shippingMethod={shippingMethod}
+                    onShippingMethodChange={setShippingMethod}
+                  />
+                )}
 
-              {currentStep === "shipping" && (
-                <ShippingForm
-                  onSubmit={
-                    handleShippingSubmit
-                  }
-                  shippingMethod={
-                    shippingMethod
-                  }
-                  onShippingMethodChange={
-                    setShippingMethod
-                  }
-                />
-              )}
+                {currentStep === "payment" && (
+                  <PaymentForm
+                    onSubmit={handlePaymentSubmit}
+                    onBack={() => setCurrentStep("shipping")}
+                  />
+                )}
 
-              {currentStep === "payment" && (
-                <PaymentForm
-                  onSubmit={
-                    handlePaymentSubmit
-                  }
-                  onBack={() =>
-                    setCurrentStep(
-                      "shipping",
-                    )
-                  }
-                />
-              )}
+                {currentStep === "review" && (
+                  <ReviewSection
+                    shippingData={shippingData}
+                    paymentData={paymentData}
+                    items={items}
+                    onBack={() => setCurrentStep("payment")}
+                    onPlaceOrder={handlePlaceOrder}
+                  />
+                )}
+              </section>
 
-              {currentStep === "review" && (
-                <ReviewSection
-                  shippingData={
-                    shippingData
-                  }
-                  paymentData={
-                    paymentData
-                  }
-                  items={items}
-                  onBack={() =>
-                    setCurrentStep(
-                      "payment",
-                    )
-                  }
-                  onPlaceOrder={
-                    handlePlaceOrder
-                  }
-                />
-              )}
-
-            </section>
-
-            {/* =========================
+              {/* =========================
                 ORDER SUMMARY
                ========================= */}
 
-            <section className="checkout-summary-section">
-              <OrderSummary
-                shippingMethod={
-                  shippingMethod
-                }
-              />
-            </section>
-
+              <section className="checkout-summary-section">
+                <OrderSummary shippingMethod={shippingMethod} />
+              </section>
+            </div>
           </div>
-
-        </div>
-
-      </main>
-    </PageContainer>
+        </main>
+      </PageContainer>
+    </>
   );
 }
 

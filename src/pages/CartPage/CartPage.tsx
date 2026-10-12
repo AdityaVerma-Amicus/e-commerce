@@ -2,22 +2,26 @@ import { useCartContext } from "../../context/CartContext";
 
 import Cart from "../../components/Cart/Cart";
 import PageContainer from "../../components/Layout/PageContainer/PageContainer";
-
+import SEO from "../../components/SEO/SEO";
 function CartPage() {
-  const {
-    items,
-    updateQty,
-    removeItem,
-  } = useCartContext();
+  const { items, updateQty, removeItem } = useCartContext();
 
   return (
-    <PageContainer>
-      <Cart
-        items={items}
-        onUpdateQuantity={updateQty}
-        onRemoveItem={removeItem}
+    <>
+      <SEO
+        title="Your Shopping Cart | E-Commerce"
+        description="Review the items in your shopping cart before proceeding to checkout."
+        canonicalPath="/cart"
+        noIndex
       />
-    </PageContainer>
+      <PageContainer>
+        <Cart
+          items={items}
+          onUpdateQuantity={updateQty}
+          onRemoveItem={removeItem}
+        />
+      </PageContainer>
+    </>
   );
 }
 

@@ -6,6 +6,7 @@ import Categories from "../components/Categories/Categories";
 import FeaturedParts from "../components/FeaturedParts/FeaturedParts";
 import PopularCategories from "../components/PopularCategories/PopularCategories";
 import PageContainer from "../components/Layout/PageContainer/PageContainer";
+import SEO from "../components/SEO/SEO";
 
 import { useCart } from "../hooks/useCart";
 
@@ -33,6 +34,12 @@ function Home() {
 
   return (
     <>
+      <SEO
+        title="Home - E-Commerce"
+        description="Welcome to our E-Commerce store. Discover a wide range of products and enjoy seamless shopping experience."
+        canonicalPath="/"
+      />
+      
       <Hero onSearch={handleSearch} />
 
       <main>

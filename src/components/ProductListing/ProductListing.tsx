@@ -4,6 +4,7 @@ import ProductGrid from "../ProductGrid/ProductGrid";
 import Pagination from "../Pagination/Pagination";
 import RadioOption from "../RadioOption/RadioOption";
 import EmptyState from "../EmptyState/EmptyState";
+import SEO from "../../components/SEO/SEO";
 
 import { useProducts } from "../../hooks/useProducts";
 import useDebounce from "../../hooks/useDebounce";
@@ -163,6 +164,11 @@ function ProductListing({
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <SEO
+        title="Shop Products | E-Commerce"
+        description="Browse our product catalog, filter by category, compare prices, and discover products that suit your needs."
+        canonicalPath="/products"
+      />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Category Sidebar */}
         <aside className="h-fit rounded-lg border border-border bg-background p-5 shadow-sm lg:sticky lg:top-6">
