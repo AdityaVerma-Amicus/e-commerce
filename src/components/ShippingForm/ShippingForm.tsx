@@ -772,7 +772,7 @@ function ShippingForm({
   );
 
   return (
-    <main className="shipping-form-container">
+    <div className="shipping-form-container">
       <form
         ref={formRef}
         className="shipping-form"
@@ -1136,7 +1136,7 @@ function ShippingForm({
           </button>
         </div>
       </form>
-    </main>
+    </div>
   );
 }
 
