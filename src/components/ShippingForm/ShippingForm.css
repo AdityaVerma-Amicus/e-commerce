@@ -73,8 +73,10 @@
 
 .shipping-form > .form-section:first-of-type .form-help {
   grid-column: 1 / -1;
-  margin-top: 0;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.75rem;
+  color: var(--color-text-secondary, #555);
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
 /*
