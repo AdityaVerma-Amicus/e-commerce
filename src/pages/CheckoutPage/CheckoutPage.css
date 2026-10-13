@@ -112,21 +112,24 @@
 .checkout-form-section .shipping-form-container {
     width: 100%;
     min-height: auto;
-
     padding: 0;
-
     background: transparent;
+    box-sizing: border-box;
 }
 
 .checkout-form-section .shipping-form {
     width: 100%;
     max-width: none;
-
     margin: 0;
+    padding: 0;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 
     box-sizing: border-box;
 }
-
 
 /* =========================
    Order Summary
