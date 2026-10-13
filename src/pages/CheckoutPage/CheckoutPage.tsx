@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useCartContext } from "../../context/CartContext";
-
 import PageContainer from "../../components/Layout/PageContainer/PageContainer";
-
 import CheckoutSteps from "../../components/Checkout/CheckoutSteps";
 
 import ShippingForm, {
@@ -16,9 +14,7 @@ import PaymentForm, {
 } from "../../components/Checkout/PaymentForm";
 
 import OrderSummary from "../../components/Checkout/OrderSummary";
-
 import ReviewSection from "../../components/Checkout/ReviewSection";
-
 import { saveOrder } from "../../services/orderServices";
 
 import type { Order } from "../../types/orders";
@@ -32,6 +28,12 @@ const SHIPPING_RATES = {
   express: 15,
   overnight: 25,
 } as const;
+
+const STEP_LABELS: Record<CheckoutStep, string> = {
+  shipping: "Shipping information",
+  payment: "Payment information",
+  review: "Review your order",
+};
 
 function CheckoutPage() {
   const {
@@ -47,25 +49,29 @@ function CheckoutPage() {
 
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("shipping");
 
-  const [shippingData, setShippingData] = useState<ShippingFormData | null>(
-    null,
-  );
+  const [shippingData, setShippingData] =
+    useState<ShippingFormData | null>(null);
 
-  const [paymentData, setPaymentData] = useState<PaymentFormData | null>(null);
+  const [paymentData, setPaymentData] =
+    useState<PaymentFormData | null>(null);
+
+  const checkoutSectionRef = useRef<HTMLElement>(null);
+  const previousStepRef = useRef<CheckoutStep>("shipping");
 
   useEffect(() => {
-    if (isLoading) {
+    if (previousStepRef.current !== currentStep) {
+      previousStepRef.current = currentStep;
+      checkoutSectionRef.current?.focus();
+    }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (isLoading || items.length > 0) {
       return;
     }
 
-    if (items.length === 0) {
-      alert("Your cart is empty.");
-
-      navigate("/products", {
-        replace: true,
-      });
-    }
-  }, [items, isLoading, navigate]);
+    navigate("/products", { replace: true });
+  }, [items.length, isLoading, navigate]);
 
   const handleShippingSubmit = (data: ShippingFormData) => {
     setShippingData(data);
@@ -89,58 +95,30 @@ function CheckoutPage() {
     }
 
     const shippingCost = SHIPPING_RATES[selectedShippingMethod];
-
     const tax = subtotal * 0.08;
-
     const total = subtotal + shippingCost + tax;
 
     const order: Order = {
       items: [...items],
-
       shipping: selectedShippingMethod,
-
       total,
-
       date: new Date().toISOString(),
-
       status: "Processing",
     };
 
     saveOrder(order);
-
-    console.log("Order placed successfully:", {
-      order,
-
-      shippingDetails: shippingData,
-
-      paymentDetails: {
-        cardholderName: paymentData.cardholderName,
-
-        cardNumber: `**** **** **** ${paymentData.cardNumber.slice(-4)}`,
-
-        expiryDate: paymentData.expiryDate,
-      },
-
-      pricing: {
-        subtotal,
-        shipping: shippingCost,
-        tax,
-        total,
-      },
-    });
-
     clearCart();
 
-    alert("Order placed successfully!");
-
-    navigate("/orders");
+    navigate("/orders", { replace: true });
   };
 
   if (isLoading) {
     return (
       <PageContainer className="checkout-page-container">
         <main className="checkout-page">
-          <p className="checkout-loading">Loading checkout...</p>
+          <h1 className="checkout-loading" role="status" aria-live="polite">
+            Loading checkout...
+          </h1>
         </main>
       </PageContainer>
     );
@@ -152,40 +130,34 @@ function CheckoutPage() {
 
   return (
     <>
-      {" "}
       <SEO
         title="Checkout | E-Commerce"
         description="Complete your shipping and payment details to place your order."
         canonicalPath="/checkout"
         noIndex
       />
+
       <PageContainer className="checkout-page-container">
         <main className="checkout-page">
-          {/* =========================
-            CHECKOUT HEADER
-           ========================= */}
-
           <div className="checkout-title">
             <h1>Checkout</h1>
           </div>
 
-          {/* =========================
-            CHECKOUT STEPS
-           ========================= */}
-
           <CheckoutSteps currentStep={currentStep} />
-
-          {/* =========================
-            CHECKOUT CARD
-           ========================= */}
 
           <div className="checkout-card">
             <div className="checkout-layout">
-              {/* =========================
-                CHECKOUT CONTENT
-               ========================= */}
+              <section
+                ref={checkoutSectionRef}
+                className="checkout-form-section"
+                tabIndex={-1}
+                aria-label={`Checkout step: ${STEP_LABELS[currentStep]}`}
+              >
+                <p className="sr-only" role="status" aria-live="polite">
+                  Step {currentStep === "shipping" ? 1 : currentStep === "payment" ? 2 : 3} of 3:{" "}
+                  {STEP_LABELS[currentStep]}
+                </p>
 
-              <section className="checkout-form-section">
                 {currentStep === "shipping" && (
                   <ShippingForm
                     onSubmit={handleShippingSubmit}
@@ -212,11 +184,10 @@ function CheckoutPage() {
                 )}
               </section>
 
-              {/* =========================
-                ORDER SUMMARY
-               ========================= */}
-
-              <section className="checkout-summary-section">
+              <section
+                className="checkout-summary-section"
+                aria-label="Order summary"
+              >
                 <OrderSummary shippingMethod={shippingMethod} />
               </section>
             </div>
