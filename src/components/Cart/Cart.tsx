@@ -47,13 +47,13 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
 
   if (items.length === 0) {
     return (
-      <section className="cart">
+      <section className="cart" aria-labelledby="cart-title">
         <div className="cart-header">
-          <h1>Your Cart</h1>
+          <h1 id="cart-title">Your Cart</h1>
         </div>
 
-        <div className="cart-empty">
-          <h2>Your cart is empty</h2>
+        <div className="cart-empty" aria-labelledby="empty-cart-title">
+          <h2 id="empty-cart-title">Your cart is empty</h2>
 
           <p>Add products to your cart to see them here.</p>
 
@@ -70,22 +70,19 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
   }
 
   return (
-    <section className="cart">
+    <section className="cart" aria-labelledby="cart-title">
       <div className="cart-header">
-        <h1>Your Cart</h1>
+        <h1 id="cart-title">Your Cart</h1>
 
-        <span>
+        <span aria-live="polite" aria-atomic="true">
           {totalQuantity} {totalQuantity === 1 ? "item" : "items"}
         </span>
       </div>
 
       <div className="cart-content">
-        {/* =========================
-            LEFT SIDE
-           ========================= */}
-
+        {/* Left side: cart items and shipping selection */}
         <div className="cart-items-section">
-          <div className="cart-items">
+          <div className="cart-items" aria-label="Items in your cart">
             {items.map((item) => (
               <CartItem
                 key={item.id}
@@ -96,14 +93,14 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
             ))}
           </div>
 
-          {/* Shipping selection */}
           <div className="cart-shipping">
             <label htmlFor="shipping-method" className="cart-shipping-label">
-              Shipping Type <span>*</span>
+              Shipping Type <span aria-hidden="true">*</span>
             </label>
 
             <select
               id="shipping-method"
+              name="shippingMethod"
               value={shippingMethod}
               onChange={(event) =>
                 setShippingMethod(event.target.value as ShippingMethod)
@@ -111,42 +108,37 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
               className="cart-shipping-select"
             >
               <option value="standard">Standard ($5)</option>
-
               <option value="express">Express ($15)</option>
-
               <option value="overnight">Overnight ($25)</option>
             </select>
           </div>
         </div>
 
-        {/* =========================
-            RIGHT SIDE
-           ========================= */}
-
-        <aside className="cart-summary">
-          <h2>Order Summary</h2>
+        {/* Right side: order summary */}
+        <aside className="cart-summary" aria-labelledby="order-summary-title">
+          <h2 id="order-summary-title">Order Summary</h2>
 
           <div className="cart-summary-row">
             <span>Subtotal</span>
-
             <strong>${subtotal.toFixed(2)}</strong>
           </div>
 
           <div className="cart-summary-row">
             <span>Shipping</span>
-
             <strong>${shipping.toFixed(2)}</strong>
           </div>
 
           <div className="cart-summary-row">
             <span>Tax (8%)</span>
-
             <strong>${tax.toFixed(2)}</strong>
           </div>
 
-          <div className="cart-summary-row cart-summary-total">
+          <div
+            className="cart-summary-row cart-summary-total"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             <span>Total</span>
-
             <strong>${total.toFixed(2)}</strong>
           </div>
 

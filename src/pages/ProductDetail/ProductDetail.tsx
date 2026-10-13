@@ -1,3 +1,4 @@
+
 import { ShoppingCart, Star } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -22,7 +23,11 @@ function ProductDetail() {
   if (loading) {
     return (
       <PageContainer>
-        <main className="flex min-h-100 items-center justify-center">
+        <main
+          className="flex min-h-100 items-center justify-center"
+          aria-busy="true"
+          aria-live="polite"
+        >
           <p className="text-text-secondary">Loading product...</p>
         </main>
       </PageContainer>
@@ -33,7 +38,9 @@ function ProductDetail() {
     return (
       <PageContainer>
         <main className="flex min-h-100 items-center justify-center">
-          <p className="text-text-secondary">{error}</p>
+          <p className="text-text-secondary" role="alert">
+            {error}
+          </p>
         </main>
       </PageContainer>
     );
@@ -62,6 +69,7 @@ function ProductDetail() {
         description={`Explore ${product.name}, priced at $${product.price}. View product details and add it to your cart.`}
         canonicalPath={`/products/${id}`}
       />
+
       <PageContainer>
         <main className="py-8">
           <div className="grid gap-8 md:grid-cols-2">
@@ -76,7 +84,10 @@ function ProductDetail() {
 
             {/* Product Information */}
             <div className="flex flex-col">
-              <div className="mb-4 flex gap-2">
+              <div
+                className="mb-4 flex gap-2"
+                aria-label="Product badges"
+              >
                 {product.isSale && (
                   <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">
                     SALE
@@ -101,11 +112,10 @@ function ProductDetail() {
               {/* Rating */}
               <div
                 className="mb-5 flex items-center gap-1"
+                role="img"
                 aria-label={`Rating: ${product.rating} out of 5`}
               >
-                {Array.from({
-                  length: product.rating,
-                }).map((_, index) => (
+                {Array.from({ length: product.rating }).map((_, index) => (
                   <Star
                     key={index}
                     size={18}
@@ -127,18 +137,24 @@ function ProductDetail() {
                   htmlFor="product-quantity"
                   className="text-sm font-bold text-text"
                 >
-                  QTY
+                  Quantity
                 </label>
 
                 <input
                   id="product-quantity"
                   type="number"
                   min={1}
+                  step={1}
+                  required
                   value={quantity}
-                  onChange={(event) =>
-                    setQuantity(Math.max(1, Number(event.target.value)))
-                  }
-                  className="w-16 rounded border border-border p-2 text-center text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+
+                    if (Number.isInteger(value) && value >= 1) {
+                      setQuantity(value);
+                    }
+                  }}
+                  className="w-16 rounded border border-border p-2 text-center text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text"
                 />
               </div>
 
@@ -146,7 +162,7 @@ function ProductDetail() {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="flex w-full items-center justify-center gap-2 rounded border border-primary bg-primary px-6 py-3 text-sm font-bold text-white transition-colors hover:border-primary-hover hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 md:w-60"
+                className="flex w-full items-center justify-center gap-2 rounded border border-primary bg-primary px-6 py-3 text-sm font-bold text-white transition-colors hover:border-primary-hover hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text md:w-60"
               >
                 <ShoppingCart size={18} aria-hidden="true" />
                 ADD TO CART
@@ -160,3 +176,4 @@ function ProductDetail() {
 }
 
 export default ProductDetail;
+  

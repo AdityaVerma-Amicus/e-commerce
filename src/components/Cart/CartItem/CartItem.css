@@ -175,7 +175,14 @@
     outline: 2px solid #f97316;
     outline-offset: 3px;
 }
+.cart-item button:focus-visible {
+  outline: 3px solid var(--color-primary-text, #b84a00);
+  outline-offset: 3px;
+}
 
+.cart-item button:disabled {
+  cursor: not-allowed;
+}
 /* =========================
    Tablet
    ========================= */
