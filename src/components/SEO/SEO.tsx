@@ -14,7 +14,11 @@ function SEO({
   canonicalPath,
   noIndex = false,
 }: SEOProps) {
-  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+  const normalizedPath = canonicalPath.startsWith("/")
+    ? canonicalPath
+    : `/${canonicalPath}`;
+
+  const canonicalUrl = `${SITE_URL}${normalizedPath}`;
 
   return (
     <>
