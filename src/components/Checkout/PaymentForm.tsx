@@ -1,5 +1,7 @@
+
 import { useState } from "react";
 import "./PaymentForm.css";
+
 export interface PaymentFormData {
   cardholderName: string;
   cardNumber: string;
@@ -20,7 +22,8 @@ const initialFormData: PaymentFormData = {
 };
 
 function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
-  const [formData, setFormData] = useState<PaymentFormData>(initialFormData);
+  const [formData, setFormData] =
+    useState<PaymentFormData>(initialFormData);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof PaymentFormData, string>>
@@ -56,6 +59,7 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
     if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(formData.expiryDate)) {
       newErrors.expiryDate = "Use MM/YY format.";
     }
+
     if (!/^\d{3}$/.test(formData.cvv)) {
       newErrors.cvv = "CVV must contain 3 digits.";
     }
@@ -76,12 +80,18 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
   };
 
   return (
-    <form className="payment-form" onSubmit={handleSubmit}>
+    <form className="payment-form" onSubmit={handleSubmit} noValidate>
       <h2>Payment Information</h2>
 
       <div className="payment-method">
-        <label>
-          <input type="radio" name="paymentMethod" checked readOnly />
+        <label htmlFor="payment-credit-card">
+          <input
+            id="payment-credit-card"
+            type="radio"
+            name="paymentMethod"
+            checked
+            readOnly
+          />
           Credit Card
         </label>
       </div>
@@ -93,13 +103,20 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
           id="cardholderName"
           name="cardholderName"
           type="text"
+          autoComplete="cc-name"
           value={formData.cardholderName}
           onChange={handleChange}
           placeholder="Enter cardholder name"
+          aria-invalid={Boolean(errors.cardholderName)}
+          aria-describedby={
+            errors.cardholderName ? "cardholderName-error" : undefined
+          }
         />
 
         {errors.cardholderName && (
-          <p className="form-error">{errors.cardholderName}</p>
+          <p id="cardholderName-error" className="form-error">
+            {errors.cardholderName}
+          </p>
         )}
       </div>
 
@@ -111,13 +128,22 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
           name="cardNumber"
           type="text"
           inputMode="numeric"
+          autoComplete="cc-number"
           maxLength={19}
           value={formData.cardNumber}
           onChange={handleChange}
           placeholder="1234 5678 9012 3456"
+          aria-invalid={Boolean(errors.cardNumber)}
+          aria-describedby={
+            errors.cardNumber ? "cardNumber-error" : undefined
+          }
         />
 
-        {errors.cardNumber && <p className="form-error">{errors.cardNumber}</p>}
+        {errors.cardNumber && (
+          <p id="cardNumber-error" className="form-error">
+            {errors.cardNumber}
+          </p>
+        )}
       </div>
 
       <div className="payment-row">
@@ -129,14 +155,21 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
             name="expiryDate"
             type="text"
             inputMode="numeric"
+            autoComplete="cc-exp"
             maxLength={5}
             value={formData.expiryDate}
             onChange={handleChange}
             placeholder="MM/YY"
+            aria-invalid={Boolean(errors.expiryDate)}
+            aria-describedby={
+              errors.expiryDate ? "expiryDate-error" : undefined
+            }
           />
 
           {errors.expiryDate && (
-            <p className="form-error">{errors.expiryDate}</p>
+            <p id="expiryDate-error" className="form-error">
+              {errors.expiryDate}
+            </p>
           )}
         </div>
 
@@ -148,13 +181,20 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
             name="cvv"
             type="password"
             inputMode="numeric"
+            autoComplete="cc-csc"
             maxLength={3}
             value={formData.cvv}
             onChange={handleChange}
             placeholder="123"
+            aria-invalid={Boolean(errors.cvv)}
+            aria-describedby={errors.cvv ? "cvv-error" : undefined}
           />
 
-          {errors.cvv && <p className="form-error">{errors.cvv}</p>}
+          {errors.cvv && (
+            <p id="cvv-error" className="form-error">
+              {errors.cvv}
+            </p>
+          )}
         </div>
       </div>
 
