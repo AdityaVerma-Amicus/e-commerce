@@ -1,3 +1,4 @@
+
 import type { CartItem as CartItemType } from "../../../types/cart";
 import "./CartItem.css";
 
@@ -27,7 +28,11 @@ function CartItem({
   };
 
   return (
-    <article className="cart-item" aria-label={item.name}>
+    <article
+      className="cart-item"
+      role="listitem"
+      aria-label={item.name}
+    >
       <div className="cart-item-image">
         <img src={item.image} alt={item.name} />
       </div>
@@ -71,7 +76,11 @@ function CartItem({
         </button>
       </div>
 
-      <div className="cart-item-total" aria-live="polite" aria-atomic="true">
+      <div
+        className="cart-item-total"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <span className="sr-only">Line total: </span>
         ${lineTotal.toFixed(2)}
       </div>

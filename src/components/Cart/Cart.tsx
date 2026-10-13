@@ -1,12 +1,11 @@
+
 import { useNavigate } from "react-router-dom";
 
 import CartItem from "./CartItem/CartItem";
 import "./Cart.css";
 
 import type { CartItem as CartItemType } from "../../types/cart";
-
 import { useCartContext } from "../../context/CartContext";
-
 import type { ShippingMethod } from "../../types/orders";
 
 const SHIPPING_RATES: Record<ShippingMethod, number> = {
@@ -23,13 +22,6 @@ interface CartProps {
 
 function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
   const navigate = useNavigate();
-
-  /*
-   * Shipping method comes from CartContext.
-   *
-   * This keeps the selected shipping method
-   * consistent between Cart and Checkout.
-   */
   const { shippingMethod, setShippingMethod } = useCartContext();
 
   const subtotal = items.reduce(
@@ -37,12 +29,13 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
     0,
   );
 
-  const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
+  const totalQuantity = items.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
 
   const shipping = SHIPPING_RATES[shippingMethod];
-
   const tax = subtotal * 0.08;
-
   const total = subtotal + shipping + tax;
 
   if (items.length === 0) {
@@ -80,9 +73,12 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
       </div>
 
       <div className="cart-content">
-        {/* Left side: cart items and shipping selection */}
         <div className="cart-items-section">
-          <div className="cart-items" aria-label="Items in your cart">
+          <div
+            className="cart-items"
+            role="list"
+            aria-label="Items in your cart"
+          >
             {items.map((item) => (
               <CartItem
                 key={item.id}
@@ -114,7 +110,6 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
           </div>
         </div>
 
-        {/* Right side: order summary */}
         <aside className="cart-summary" aria-labelledby="order-summary-title">
           <h2 id="order-summary-title">Order Summary</h2>
 
