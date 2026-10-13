@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import ProductGrid from "../ProductGrid/ProductGrid";
+
 import Pagination from "../Pagination/Pagination";
+
 import RadioOption from "../RadioOption/RadioOption";
+
 import EmptyState from "../EmptyState/EmptyState";
+
 import SEO from "../../components/SEO/SEO";
 
 import { useProducts } from "../../hooks/useProducts";
+
 import useDebounce from "../../hooks/useDebounce";
+
 import useFetch from "../../hooks/useFetch";
 
 import { CATEGORIES_API_URL } from "../../services/categoryServices";
@@ -17,40 +23,54 @@ import type { Product } from "../../data/products";
 const SORT_OPTIONS: Record<string, { sortBy: string; order: string }> = {
   "price-low-high": {
     sortBy: "price",
+
     order: "asc",
   },
+
   "price-high-low": {
     sortBy: "price",
+
     order: "desc",
   },
+
   "name-a-z": {
     sortBy: "title",
+
     order: "asc",
   },
+
   rating: {
     sortBy: "rating",
+
     order: "desc",
   },
 };
 
 const SORT_LABELS: Record<string, string> = {
   default: "Default",
+
   "price-low-high": "Price: Low to High",
+
   "price-high-low": "Price: High to Low",
+
   "name-a-z": "Name: A to Z",
+
   rating: "Rating",
 };
 
 interface ProductListingProps {
   initialSearch?: string;
+
   onAddToCart: (product: Product, quantity: number) => void;
 }
 
 const PRODUCT_PAGE_SIZE = 9;
+
 const INITIAL_CATEGORY_COUNT = 7;
 
 function ProductListing({
   initialSearch = "",
+
   onAddToCart,
 }: ProductListingProps) {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -65,19 +85,29 @@ function ProductListing({
 
   const {
     data: categories,
+
     loading: categoriesLoading,
+
     error: categoriesError,
+
     refetch: refetchCategories,
   } = useFetch<string[]>(CATEGORIES_API_URL);
 
   const {
     products,
+
     loading,
+
     error,
+
     currentPage,
+
     totalResults,
+
     totalPages,
+
     goToPage,
+
     refresh,
   } = useProducts(PRODUCT_PAGE_SIZE);
 
@@ -97,8 +127,10 @@ function ProductListing({
     () =>
       SORT_OPTIONS[sortOption] ?? {
         sortBy: "",
+
         order: "",
       },
+
     [sortOption],
   );
 
@@ -106,16 +138,24 @@ function ProductListing({
     (search: string = searchTerm, category: string = selectedCategory) => {
       refresh(
         search,
+
         category === "all" ? "" : category,
+
         sortParams.sortBy,
+
         sortParams.order,
       );
     },
+
     [
       refresh,
+
       searchTerm,
+
       selectedCategory,
+
       sortParams.sortBy,
+
       sortParams.order,
     ],
   );
@@ -124,6 +164,7 @@ function ProductListing({
     (value: string) => {
       const nextSort = SORT_OPTIONS[value] ?? {
         sortBy: "",
+
         order: "",
       };
 
@@ -131,19 +172,25 @@ function ProductListing({
 
       refresh(
         searchTerm,
+
         selectedCategory === "all" ? "" : selectedCategory,
+
         nextSort.sortBy,
+
         nextSort.order,
       );
     },
+
     [refresh, searchTerm, selectedCategory],
   );
 
   const handleCategoryChange = useCallback(
     (value: string) => {
       setSelectedCategory(value);
+
       refreshProducts(searchTerm, value);
     },
+
     [refreshProducts, searchTerm],
   );
 
@@ -154,6 +201,7 @@ function ProductListing({
       showAllCategories
         ? categoryList
         : categoryList.slice(0, INITIAL_CATEGORY_COUNT),
+
     [categoryList, showAllCategories],
   );
 
@@ -169,8 +217,10 @@ function ProductListing({
         description="Browse our product catalog, filter by category, compare prices, and discover products that suit your needs."
         canonicalPath="/products"
       />
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         {/* Category Sidebar */}
+
         <aside className="h-fit rounded-lg border border-border bg-background p-5 shadow-sm lg:sticky lg:top-6">
           <h2 className="mb-5 text-lg font-bold tracking-wide text-text">
             CATEGORY
@@ -247,8 +297,16 @@ function ProductListing({
         </aside>
 
         {/* Product Content */}
+
         <div className="lg:col-span-3">
+          <h1 className="mb-6 text-2xl font-bold tracking-tight text-text">
+            {searchTerm.trim()
+              ? `Search results for "${searchTerm.trim()}"`
+              : "Shop Products"}
+          </h1>
+
           {/* Results Header */}
+
           <div className="mb-5 min-h-10">
             {!loading && !error && (
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -290,6 +348,7 @@ function ProductListing({
           </div>
 
           {/* Error State */}
+
           {!loading && error && (
             <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-red-200 bg-red-50 p-8 text-center">
               <p className="text-sm font-medium text-red-600">{error}</p>
@@ -305,9 +364,11 @@ function ProductListing({
           )}
 
           {/* Empty State */}
+
           {!loading && !error && products.length === 0 && <EmptyState />}
 
           {/* Product Grid */}
+
           {!error && (
             <ProductGrid
               products={products}
@@ -318,6 +379,7 @@ function ProductListing({
           )}
 
           {/* Pagination */}
+
           {!error && products.length > 0 && (
             <Pagination
               currentPage={currentPage}

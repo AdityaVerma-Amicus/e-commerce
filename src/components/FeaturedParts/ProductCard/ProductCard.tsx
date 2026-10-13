@@ -1,3 +1,4 @@
+
 import { Star } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { memo, useCallback, useState } from "react";
@@ -15,7 +16,11 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
   const handleQuantityChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setQuantity(Math.max(1, Number(event.target.value)));
+      const value = Number(event.target.value);
+
+      if (Number.isInteger(value) && value >= 1) {
+        setQuantity(value);
+      }
     },
     [],
   );
@@ -26,7 +31,10 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
 
   return (
     <div className="flex h-100 w-54 shrink-0 flex-col rounded-md border border-border bg-background p-3 pb-3 shadow-sm transition-shadow duration-200 hover:shadow-lg">
-      <Link to={`/products/${product.id}`} className="block">
+      <Link
+        to={`/products/${product.id}`}
+        className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text"
+      >
         <div className="relative mb-2 flex h-30 w-full shrink-0 items-center justify-center overflow-hidden">
           <img
             src={product.image}
@@ -59,15 +67,16 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
       </Link>
 
       <div className="flex flex-1 flex-col items-center text-center">
-        <p className="mb-2 text-xs text-text-secondary">SKU: {product.sku}</p>
+        <p className="mb-2 text-xs text-text-secondary">
+          SKU: {product.sku}
+        </p>
 
         <div
           className="mb-3 flex min-h-5 items-center justify-center gap-1"
+          role="img"
           aria-label={`Rating: ${product.rating} out of 5`}
         >
-          {Array.from({
-            length: product.rating,
-          }).map((_, index) => (
+          {Array.from({ length: product.rating }).map((_, index) => (
             <Star
               key={index}
               size={16}
@@ -84,7 +93,7 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
             htmlFor={`quantity-${product.sku}`}
             className="text-sm font-bold text-text"
           >
-            QTY
+            Quantity
           </label>
 
           <input
@@ -92,16 +101,17 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
             type="number"
             value={quantity}
             min={1}
+            step={1}
+            required
             onChange={handleQuantityChange}
-            className="w-14 rounded border border-border p-1.5 text-center text-sm outline-none transition-shadow duration-200 focus:border-primary focus:ring-2 focus:ring-primary/30"
+            className="w-14 rounded border border-border p-1.5 text-center text-sm outline-none transition-shadow duration-200 focus-visible:border-primary-text focus-visible:ring-2 focus-visible:ring-primary-text/30"
           />
         </div>
 
         <button
           type="button"
           onClick={handleAddToCart}
-          title="Click to add this product to your shopping cart"
-          className="mt-auto w-full rounded border border-primary bg-primary px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:border-primary-hover hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          className="mt-auto w-full rounded border border-primary bg-primary px-4 py-2 text-sm font-bold text-white transition-all duration-200 hover:border-primary-hover hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text"
         >
           ADD TO CART
         </button>
