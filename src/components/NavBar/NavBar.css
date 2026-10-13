@@ -23,7 +23,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-
 /* =========================
    Navigation Menu Position
    ========================= */
@@ -36,7 +35,6 @@
   display: flex;
   align-items: center;
 }
-
 
 /* =========================
    Logo
@@ -59,7 +57,6 @@
 
   object-fit: contain;
 }
-
 
 /* =========================
    Search Bar
@@ -102,7 +99,7 @@
 }
 
 .navbar-search input:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-text, #b84a00);
 }
 
 .navbar-search input::placeholder {
@@ -110,7 +107,6 @@
 
   opacity: 1;
 }
-
 
 /* =========================
    Search Button
@@ -135,13 +131,12 @@
 
   border: none;
 
-  color: var(--color-primary);
+  color: var(--color-primary-text, #b84a00);
 
   transform: translateY(-50%);
 
   cursor: pointer;
 }
-
 
 /* =========================
    Search Icon
@@ -153,7 +148,7 @@
   width: 13px;
   height: 13px;
 
-  border: 2px solid var(--color-primary);
+  border: 2px solid var(--color-primary-text, #b84a00);
 
   border-radius: 50%;
 }
@@ -166,7 +161,7 @@
   width: 6px;
   height: 2px;
 
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-text, #b84a00);
 
   right: -5px;
   bottom: -3px;
@@ -175,7 +170,6 @@
 
   transform-origin: left center;
 }
-
 
 /* =========================
    Search Button Hover
@@ -189,7 +183,6 @@
   background-color: var(--color-primary-hover);
 }
 
-
 /* =========================
    Mobile Search Icon
    ========================= */
@@ -200,8 +193,8 @@
   align-items: center;
   justify-content: center;
 
-  width: 28px;
-  height: 28px;
+  min-width: 44px;
+  min-height: 44px;
 
   padding: 0;
 
@@ -209,7 +202,7 @@
 
   border: none;
 
-  color: var(--color-primary);
+  color: var(--color-primary-text, #b84a00);
 
   cursor: pointer;
 }
@@ -217,7 +210,6 @@
 .mobile-search-btn:hover {
   color: var(--color-primary-hover);
 }
-
 
 /* =========================
    Navbar Actions
@@ -230,7 +222,6 @@
   gap: 20px;
 }
 
-
 /* =========================
    Sign In
    ========================= */
@@ -238,7 +229,6 @@
 .navbar-signin {
   flex-shrink: 0;
 }
-
 
 /* =========================
    Cart
@@ -266,13 +256,12 @@
 }
 
 .cart-btn:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-text, #b84a00);
 }
 
 .cart-label {
   display: inline;
 }
-
 
 /* =========================
    Cart Count
@@ -297,6 +286,21 @@
   font-weight: bold;
 }
 
+/* =========================
+   Keyboard Focus Indicators
+   ========================= */
+
+.hamburger-btn:focus-visible,
+.mobile-search-btn:focus-visible,
+.cart-btn:focus-visible,
+.search-input-wrapper button:focus-visible,
+.navbar-search input:focus-visible,
+.drawer-menu-item:focus-visible {
+  outline: 3px solid var(--color-primary-text, #b84a00);
+  outline-offset: 3px;
+
+  border-radius: var(--border-radius-sm);
+}
 
 /* =========================
    Tablet
@@ -343,7 +347,6 @@
   }
 }
 
-
 /* =========================
    Mobile
    600px and below
@@ -365,7 +368,6 @@
     min-height: var(--navbar-height);
   }
 
-
   /* =========================
      Navigation Menu
      ========================= */
@@ -378,7 +380,6 @@
 
     left: auto;
   }
-
 
   /* =========================
      Logo
@@ -397,7 +398,6 @@
     width: 160px;
   }
 
-
   /* =========================
      Search
      ========================= */
@@ -405,9 +405,6 @@
   .navbar-search {
     display: contents;
   }
-
-
-
 
   /* =========================
      Search Bar - Second Row
@@ -426,7 +423,6 @@
     font-size: 13px;
   }
 
-
   /* =========================
      Navbar Actions
      ========================= */
@@ -443,13 +439,11 @@
     gap: 8px;
   }
 
-
   /* Sign In is inside drawer */
 
   .navbar-signin {
     display: none;
   }
-
 
   /* Hide Cart Text */
 
@@ -471,7 +465,6 @@
   }
 }
 
-
 /* =========================
    Very Small Screens
    ========================= */
@@ -489,8 +482,8 @@
   }
 
   .mobile-search-btn {
-    width: 26px;
-    height: 26px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .cart-count {

@@ -10,8 +10,8 @@
 
   flex-shrink: 0;
 
-  width: 28px;
-  height: 28px;
+  min-width: 44px;
+  min-height: 44px;
 
   padding: 0;
   margin: 0;
@@ -23,16 +23,13 @@
   color: var(--color-text);
 
   cursor: pointer;
+
+  transition: color var(--transition-fast);
 }
 
 .hamburger-btn:hover {
-  color: var(--color-primary);
+  color: var(--color-primary-text, #b84a00);
 }
-
-.hamburger-btn:focus {
-  outline: none;
-}
-
 
 /* =========================
    Menu Overlay
@@ -49,7 +46,6 @@
   z-index: 1000;
 }
 
-
 /* =========================
    Navigation Drawer
    ========================= */
@@ -61,6 +57,8 @@
   left: 0;
 
   width: 380px;
+  max-width: 100%;
+
   height: calc(100vh - var(--navbar-height));
 
   background-color: var(--color-background);
@@ -79,7 +77,6 @@
 .navigation-drawer-open {
   transform: translateX(0);
 }
-
 
 /* =========================
    Drawer Menu
@@ -119,6 +116,8 @@
 
   text-align: left;
 
+  text-decoration: none;
+
   cursor: pointer;
 
   transition:
@@ -129,7 +128,7 @@
 .drawer-menu-item:hover {
   background-color: var(--color-surface);
 
-  color: var(--color-primary);
+  color: var(--color-primary-text, #b84a00);
 }
 
 .drawer-menu-item svg {
@@ -141,6 +140,19 @@
   color: var(--color-text-secondary);
 }
 
+/* =========================
+   Active Drawer Item
+   ========================= */
+
+.drawer-menu-item-active {
+  background-color: var(--color-surface);
+
+  color: var(--color-primary-text, #b84a00);
+}
+
+.drawer-menu-item-active svg {
+  color: var(--color-primary-text, #b84a00);
+}
 
 /* =========================
    Drawer Sign In
@@ -160,15 +172,6 @@
   border-top: 1px solid var(--color-border);
 }
 
-.drawer-menu-item-active {
-    background-color: var(--color-surface);
-    color: var(--color-primary);
-}
-
-.drawer-menu-item-active svg {
-    color: var(--color-primary);
-}
-
 /* =========================
    Tablet + Mobile
    ========================= */
@@ -176,5 +179,17 @@
 @media (max-width: 900px) {
   .drawer-signin {
     display: flex;
+  }
+}
+
+/* =========================
+   Reduced Motion
+   ========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .navigation-drawer,
+  .drawer-menu-item,
+  .hamburger-btn {
+    transition: none;
   }
 }

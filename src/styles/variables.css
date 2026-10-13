@@ -1,5 +1,4 @@
 :root {
-
   /* Colors */
 
   --color-background: #ffffff;
@@ -7,6 +6,8 @@
   --color-surface: #f5f5f5;
 
   --color-text: #333333;
+
+  --color-primary-text: #b84a00;
 
   --color-text-secondary: #777777;
 
@@ -18,13 +19,11 @@
 
   --color-white: #ffffff;
 
-
   /* Typography */
 
   --font-family-base: "Roboto", Arial, sans-serif;
 
   --font-family-heading: "Roboto Condensed", Arial, sans-serif;
-
 
   /* Spacing */
 
@@ -38,7 +37,6 @@
 
   --spacing-xl: 60px;
 
-
   /* Border Radius */
 
   --border-radius-sm: 4px;
@@ -47,17 +45,14 @@
 
   --border-radius-lg: 8px;
 
-
   /* Transitions */
 
   --transition-fast: 0.2s ease;
-
 
   /* Navbar */
 
   --navbar-height: 64px;
 }
-
 
 /* =========================
    Tablet
@@ -68,7 +63,6 @@
     --navbar-height: 72px;
   }
 }
-
 
 /* =========================
    Mobile
