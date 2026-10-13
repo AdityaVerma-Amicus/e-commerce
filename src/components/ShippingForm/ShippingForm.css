@@ -5,11 +5,8 @@
 .shipping-form-container {
   width: 100%;
   min-height: auto;
-
   padding: 0;
-
   background: transparent;
-
   box-sizing: border-box;
 }
 
@@ -20,17 +17,12 @@
 .shipping-form {
   width: 100%;
   max-width: none;
-
   margin: 0;
   padding: 1.5rem;
-
   background-color: var(--color-background);
-
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-lg);
-
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-
   box-sizing: border-box;
 }
 
@@ -44,9 +36,7 @@
 
 .form-section h2 {
   margin: 0 0 1.25rem;
-
   color: var(--color-text);
-
   font-family: var(--font-family-heading);
   font-size: 1.1rem;
   font-weight: 700;
@@ -56,32 +46,24 @@
    Shipping Information Layout
    ========================= */
 
-/*
- * The first section contains the
- * shipping address fields.
- *
- * Two-column layout keeps the form
- * compact on desktop.
- */
-
 .shipping-form > .form-section:first-of-type {
   display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   column-gap: 1.25rem;
 }
 
+/* Heading spans both columns */
 .shipping-form > .form-section:first-of-type h2 {
   grid-column: 1 / -1;
 }
 
-/*
- * Country / State / City / ZIP
- * already use .form-row, so keep
- * them across the full width.
- */
+/* Required-fields explanation spans both columns */
+.shipping-form > .form-section:first-of-type .form-help {
+  grid-column: 1 / -1;
+  margin: 0 0 1.25rem;
+}
 
+/* Location fields span the full width */
 .shipping-form > .form-section:first-of-type .form-row {
   grid-column: 1 / -1;
 }
@@ -93,15 +75,13 @@
 .form-group {
   display: flex;
   flex-direction: column;
-
+  min-width: 0;
   margin-bottom: 1rem;
 }
 
 .form-group label {
   margin-bottom: 0.4rem;
-
   color: var(--color-text);
-
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -114,22 +94,15 @@
 .form-group select {
   width: 100%;
   min-height: 42px;
-
   padding: 0.65rem 0.75rem;
-
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
-
   outline: none;
-
   background-color: #ffffff;
   color: var(--color-text);
-
   font-family: var(--font-family-base);
   font-size: 0.85rem;
-
   box-sizing: border-box;
-
   transition:
     border-color var(--transition-fast),
     box-shadow var(--transition-fast),
@@ -141,10 +114,11 @@
   border-color: #9ca3af;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  border-color: var(--color-primary);
-
+.form-group input:focus-visible,
+.form-group select:focus-visible {
+  border-color: var(--color-primary-text, #b84a00);
+  outline: 2px solid var(--color-primary-text, #b84a00);
+  outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.1);
 }
 
@@ -155,9 +129,7 @@
 .form-group select:disabled {
   background-color: var(--color-surface);
   color: var(--color-text-secondary);
-
   cursor: not-allowed;
-
   opacity: 0.7;
 }
 
@@ -167,15 +139,12 @@
 
 .form-row {
   display: grid;
-
   grid-template-columns:
-    1fr
-    1fr
-    1fr
-    0.75fr;
-
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    minmax(0, 0.75fr);
   gap: 1rem;
-
   width: 100%;
 }
 
@@ -185,9 +154,7 @@
 
 .form-error {
   margin: 0.3rem 0 0;
-
   color: #d32f2f;
-
   font-size: 0.75rem;
   line-height: 1.4;
 }
@@ -198,7 +165,6 @@
 
 .required {
   margin-left: 2px;
-
   color: #d32f2f;
 }
 
@@ -208,33 +174,24 @@
 
 .shipping-methods {
   display: grid;
-
-  grid-template-columns: repeat(3, 1fr);
-
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
 .shipping-methods label {
   display: flex;
   align-items: center;
-
+  min-width: 0;
   min-height: 48px;
-
   gap: 0.5rem;
-
   padding: 0.7rem 0.75rem;
-
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
-
   background-color: #ffffff;
   color: var(--color-text);
-
   font-size: 0.8rem;
   font-weight: 500;
-
   cursor: pointer;
-
   transition:
     border-color var(--transition-fast),
     background-color var(--transition-fast),
@@ -243,21 +200,21 @@
 
 .shipping-methods label:hover {
   border-color: var(--color-primary);
-
   background-color: #fffaf5;
 }
 
 .shipping-methods input {
   width: 15px;
   height: 15px;
-
   margin: 0;
-
   flex-shrink: 0;
-
   accent-color: var(--color-primary);
-
   cursor: pointer;
+}
+
+.shipping-methods input:focus-visible {
+  outline: 2px solid var(--color-primary-text, #b84a00);
+  outline-offset: 3px;
 }
 
 /* =========================
@@ -266,26 +223,18 @@
 
 .place-order-btn {
   display: block;
-
   width: auto;
   min-width: 180px;
-
   margin-left: auto;
-
   padding: 0.75rem 1.5rem;
-
   border: 1px solid var(--color-primary);
   border-radius: 0.375rem;
-
   background-color: var(--color-primary);
   color: var(--color-white);
-
   font-family: var(--font-family-base);
   font-size: 0.85rem;
   font-weight: 700;
-
   cursor: pointer;
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -304,7 +253,6 @@
 
 .place-order-btn:disabled {
   cursor: not-allowed;
-
   opacity: 0.5;
 }
 
@@ -314,27 +262,19 @@
 
 .shipping-form button[type="submit"] {
   display: block;
-
   width: auto;
   min-width: 180px;
-
   margin-top: 1.5rem;
   margin-left: auto;
-
   padding: 0.75rem 1.5rem;
-
   border: 1px solid var(--color-primary);
   border-radius: var(--border-radius-md);
-
   background-color: var(--color-primary);
   color: var(--color-white);
-
   font-family: var(--font-family-base);
   font-size: 0.85rem;
   font-weight: 700;
-
   cursor: pointer;
-
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast),
@@ -347,6 +287,12 @@
   border-color: var(--color-primary-hover);
 }
 
+.shipping-form button[type="submit"]:focus-visible,
+.place-order-btn:focus-visible {
+  outline: 3px solid var(--color-primary-text, #b84a00);
+  outline-offset: 3px;
+}
+
 .shipping-form button[type="submit"]:active:not(:disabled) {
   transform: translateY(1px);
 }
@@ -355,6 +301,7 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
 /* =========================
    Tablet
    ========================= */
@@ -365,11 +312,11 @@
   }
 
   .shipping-form > .form-section:first-of-type {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .shipping-methods {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -383,16 +330,17 @@
   }
 
   .shipping-form > .form-section:first-of-type {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .shipping-form > .form-section:first-of-type h2,
+  .shipping-form > .form-section:first-of-type .form-help,
   .shipping-form > .form-section:first-of-type .form-row {
-    grid-column: auto;
+    grid-column: 1 / -1;
   }
 
   .form-row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .shipping-methods {
@@ -415,7 +363,7 @@
   }
 
   .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
 
