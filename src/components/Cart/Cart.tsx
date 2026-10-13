@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import CartItem from "./CartItem/CartItem";
@@ -22,6 +23,8 @@ interface CartProps {
 
 function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
   const navigate = useNavigate();
+  const [cartAnnouncement, setCartAnnouncement] = useState("");
+
   const { shippingMethod, setShippingMethod } = useCartContext();
 
   const subtotal = items.reduce(
@@ -38,12 +41,21 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
 
+  const handleRemoveItem = (item: CartItemType) => {
+    onRemoveItem(item.id);
+    setCartAnnouncement(`${item.name} removed from cart.`);
+  };
+
   if (items.length === 0) {
     return (
       <section className="cart" aria-labelledby="cart-title">
         <div className="cart-header">
           <h1 id="cart-title">Your Cart</h1>
         </div>
+
+        <p className="sr-only" role="status" aria-atomic="true">
+          {cartAnnouncement}
+        </p>
 
         <div className="cart-empty" aria-labelledby="empty-cart-title">
           <h2 id="empty-cart-title">Your cart is empty</h2>
@@ -72,6 +84,10 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
         </span>
       </div>
 
+      <p className="sr-only" role="status" aria-atomic="true">
+        {cartAnnouncement}
+      </p>
+
       <div className="cart-content">
         <div className="cart-items-section">
           <div
@@ -84,7 +100,7 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
                 key={item.id}
                 item={item}
                 onUpdateQuantity={onUpdateQuantity}
-                onRemove={onRemoveItem}
+                onRemove={() => handleRemoveItem(item)}
               />
             ))}
           </div>
