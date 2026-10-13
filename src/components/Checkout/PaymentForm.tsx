@@ -97,7 +97,9 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="cardholderName">Cardholder Name *</label>
+        <label htmlFor="cardholderName">
+          Cardholder Name <span className="required">*</span>
+        </label>
 
         <input
           id="cardholderName"
@@ -121,7 +123,9 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
       </div>
 
       <div className="form-group">
-        <label htmlFor="cardNumber">Card Number *</label>
+        <label htmlFor="cardNumber">
+          Card Number <span className="required">*</span>
+        </label>
 
         <input
           id="cardNumber"
@@ -148,7 +152,9 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
 
       <div className="payment-row">
         <div className="form-group">
-          <label htmlFor="expiryDate">Expiry Date *</label>
+          <label htmlFor="expiryDate">
+            Expiry Date <span className="required">*</span>
+          </label>
 
           <input
             id="expiryDate"
@@ -174,7 +180,9 @@ function PaymentForm({ onSubmit, onBack }: PaymentFormProps) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="cvv">CVV *</label>
+          <label htmlFor="cvv">
+            CVV <span className="required">*</span>
+          </label>
 
           <input
             id="cvv"

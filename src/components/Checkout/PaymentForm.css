@@ -23,6 +23,12 @@
   font-weight: 700;
 }
 
+/* Required Field Indicator */
+
+.payment-form .required {
+  color: #d32f2f;
+}
+
 /* Payment Method */
 
 .payment-method {
