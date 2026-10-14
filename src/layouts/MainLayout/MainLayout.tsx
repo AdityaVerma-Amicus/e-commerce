@@ -8,7 +8,7 @@ function MainLayout() {
         <div className="app">
             <NavBar />
 
-            <main className="app-content">
+            <main className="app-content flex-1">
                 <Outlet />
             </main>
 
