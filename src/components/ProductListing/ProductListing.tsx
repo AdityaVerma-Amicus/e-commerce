@@ -216,6 +216,36 @@ function ProductListing({
         title="Shop Products | E-Commerce"
         description="Browse our product catalog, filter by category, compare prices, and discover products that suit your needs."
         canonicalPath="/products"
+        structuredData={[
+          {
+            "@type": "ItemList",
+            name: "Shop Products",
+            numberOfItems: products.length,
+            itemListElement: products.map((product, index) => ({
+              "@type": "ListItem",
+              position: (currentPage - 1) * PRODUCT_PAGE_SIZE + index + 1,
+              url: `https://e-commerce-orpin-pi-23.vercel.app/products/${product.id}`,
+              name: product.name,
+            })),
+          },
+          {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://e-commerce-orpin-pi-23.vercel.app/",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Shop Products",
+                item: "https://e-commerce-orpin-pi-23.vercel.app/products",
+              },
+            ],
+          },
+        ]}
       />
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">

@@ -1,4 +1,3 @@
-
 import { ShoppingCart, Star } from "lucide-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -68,6 +67,51 @@ function ProductDetail() {
         title={`${product.name} | E-Commerce`}
         description={`Explore ${product.name}, priced at $${product.price}. View product details and add it to your cart.`}
         canonicalPath={`/products/${id}`}
+        structuredData={[
+          {
+            "@type": "Product",
+            name: product.name,
+            description: data.description,
+            image: [product.image],
+            sku: product.sku,
+            category: product.category,
+            url: `https://e-commerce-orpin-pi-23.vercel.app/products/${id}`,
+            offers: {
+              "@type": "Offer",
+              url: `https://e-commerce-orpin-pi-23.vercel.app/products/${id}`,
+              priceCurrency: "USD",
+              price: product.price.toFixed(2),
+              availability:
+                data.stock > 0
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+              itemCondition: "https://schema.org/NewCondition",
+            },
+          },
+          {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://e-commerce-orpin-pi-23.vercel.app/",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Shop Products",
+                item: "https://e-commerce-orpin-pi-23.vercel.app/products",
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: product.name,
+                item: `https://e-commerce-orpin-pi-23.vercel.app/products/${id}`,
+              },
+            ],
+          },
+        ]}
       />
 
       <PageContainer>
@@ -84,10 +128,7 @@ function ProductDetail() {
 
             {/* Product Information */}
             <div className="flex flex-col">
-              <div
-                className="mb-4 flex gap-2"
-                aria-label="Product badges"
-              >
+              <div className="mb-4 flex gap-2" aria-label="Product badges">
                 {product.isSale && (
                   <span className="rounded-full bg-primary px-3 py-1 text-xs font-bold text-white">
                     SALE
@@ -176,4 +217,3 @@ function ProductDetail() {
 }
 
 export default ProductDetail;
-  
