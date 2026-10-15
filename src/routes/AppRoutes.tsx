@@ -13,6 +13,7 @@ import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
 import CartSkeleton from "../components/Cart/CartSkeleton";
 import CheckoutSkeleton from "../components/Checkout/CheckoutSkeleton";
+import PageContainer from "../components/Layout/PageContainer/PageContainer";
 
 const CartPage = lazy(() => import("../pages/CartPage/CartPage"));
 const CheckoutPage = lazy(() => import("../pages/CheckoutPage/CheckoutPage"));
@@ -32,7 +33,13 @@ function AppRoutes() {
         <Route
           path="/cart"
           element={
-            <Suspense fallback={<CartSkeleton />}>
+            <Suspense
+              fallback={
+                <PageContainer>
+                  <CartSkeleton />
+                </PageContainer>
+              }
+            >
               <CartPage />
             </Suspense>
           }
@@ -44,7 +51,13 @@ function AppRoutes() {
         <Route
           path="/checkout"
           element={
-            <Suspense fallback={<CheckoutSkeleton />}>
+            <Suspense
+              fallback={
+                <PageContainer>
+                  <CheckoutSkeleton />
+                </PageContainer>
+              }
+            >
               <CheckoutPage />
             </Suspense>
           }
