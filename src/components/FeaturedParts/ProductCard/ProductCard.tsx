@@ -40,6 +40,8 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
             alt={product.name}
             width={144}
             height={120}
+            loading="lazy"
+            decoding="async"
             className="block h-30 w-36 max-w-full object-contain transition-transform duration-300 hover:scale-105"
           />
 
