@@ -5,7 +5,6 @@ import PageContainer from "../../components/Layout/PageContainer/PageContainer";
 import SEO from "../../components/SEO/SEO";
 
 function CartPage() {
-  
   const { items, updateQty, removeItem, isLoading } = useCartContext();
 
   return (

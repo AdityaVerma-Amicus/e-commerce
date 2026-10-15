@@ -8,12 +8,14 @@ import SearchResults from "../pages/SearchResults";
 import ProductDetail from "../pages/ProductDetail/ProductDetail";
 import NotFound from "../pages/NotFound/NotFound";
 import Login from "../pages/Login/Login";
+
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 
+import CartSkeleton from "../components/Cart/CartSkeleton";
+import CheckoutSkeleton from "../components/Checkout/CheckoutSkeleton";
+
 const CartPage = lazy(() => import("../pages/CartPage/CartPage"));
-
 const CheckoutPage = lazy(() => import("../pages/CheckoutPage/CheckoutPage"));
-
 const OrdersPage = lazy(() => import("../pages/OrdersPage/OrdersPage"));
 
 function AppRoutes() {
@@ -26,10 +28,11 @@ function AppRoutes() {
 
         <Route path="/products/:id" element={<ProductDetail />} />
 
+        {/* CART: Skeleton while the lazy-loaded page component loads */}
         <Route
           path="/cart"
           element={
-            <Suspense fallback={<p>Loading cart...</p>}>
+            <Suspense fallback={<CartSkeleton />}>
               <CartPage />
             </Suspense>
           }
@@ -37,10 +40,11 @@ function AppRoutes() {
 
         <Route path="/login" element={<Login />} />
 
+        {/* CHECKOUT: Skeleton while the lazy-loaded page component loads */}
         <Route
           path="/checkout"
           element={
-            <Suspense fallback={<p>Loading checkout...</p>}>
+            <Suspense fallback={<CheckoutSkeleton />}>
               <CheckoutPage />
             </Suspense>
           }

@@ -26,7 +26,7 @@ function Cart({
   items,
   onUpdateQuantity,
   onRemoveItem,
-  isLoading = false, 
+  isLoading = false,
 }: CartProps) {
   const navigate = useNavigate();
   const [cartAnnouncement, setCartAnnouncement] = useState("");
@@ -49,11 +49,9 @@ function Cart({
     setCartAnnouncement(`${item.name} removed from cart.`);
   };
 
-  
-  if (isLoading) {
+   if (isLoading) {
     return <CartSkeleton />;
   }
-
 
   if (items.length === 0) {
     return (
@@ -68,6 +66,7 @@ function Cart({
 
         <div className="cart-empty" aria-labelledby="empty-cart-title">
           <h2 id="empty-cart-title">Your cart is empty</h2>
+
           <p>Add products to your cart to see them here.</p>
 
           <button
@@ -82,7 +81,7 @@ function Cart({
     );
   }
 
- 
+  // PRODUCTION: Display the actual cart after loading finishes.
   return (
     <section className="cart" aria-labelledby="cart-title">
       <div className="cart-header">
