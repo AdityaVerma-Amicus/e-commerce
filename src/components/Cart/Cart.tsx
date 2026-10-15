@@ -23,7 +23,7 @@ interface CartProps {
   isLoading?: boolean;
 }
 
-function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = false, }: CartProps) {
+function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = true, }: CartProps) {
   const navigate = useNavigate();
   const [cartAnnouncement, setCartAnnouncement] = useState("");
 
@@ -50,7 +50,7 @@ function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = false, }: Car
    if (isLoading) {
     return <CartSkeleton />;
   }
-  
+
   if (items.length === 0) {
     return (
       <section className="cart" aria-labelledby="cart-title">
