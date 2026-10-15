@@ -1,4 +1,3 @@
-
 import { Star } from "lucide-react";
 import type { ChangeEvent } from "react";
 import { memo, useCallback, useState } from "react";
@@ -39,6 +38,8 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
           <img
             src={product.image}
             alt={product.name}
+            width={144}
+            height={120}
             className="block h-30 w-36 max-w-full object-contain transition-transform duration-300 hover:scale-105"
           />
 
@@ -67,9 +68,7 @@ function ProductCard({ product, onAddToCart }: ProductCardProps) {
       </Link>
 
       <div className="flex flex-1 flex-col items-center text-center">
-        <p className="mb-2 text-xs text-text-secondary">
-          SKU: {product.sku}
-        </p>
+        <p className="mb-2 text-xs text-text-secondary">SKU: {product.sku}</p>
 
         <div
           className="mb-3 flex min-h-5 items-center justify-center gap-1"

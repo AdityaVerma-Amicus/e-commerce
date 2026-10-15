@@ -8,6 +8,7 @@ import "./Cart.css";
 import type { CartItem as CartItemType } from "../../types/cart";
 import { useCartContext } from "../../context/CartContext";
 import type { ShippingMethod } from "../../types/orders";
+import CartSkeleton from "./CartSkeleton";
 
 const SHIPPING_RATES: Record<ShippingMethod, number> = {
   standard: 5,
@@ -19,9 +20,10 @@ interface CartProps {
   items: CartItemType[];
   onUpdateQuantity: (id: number, quantity: number) => void;
   onRemoveItem: (id: number) => void;
+  isLoading?: boolean;
 }
 
-function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
+function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = false, }: CartProps) {
   const navigate = useNavigate();
   const [cartAnnouncement, setCartAnnouncement] = useState("");
 
@@ -45,7 +47,10 @@ function Cart({ items, onUpdateQuantity, onRemoveItem }: CartProps) {
     onRemoveItem(item.id);
     setCartAnnouncement(`${item.name} removed from cart.`);
   };
-
+   if (isLoading) {
+    return <CartSkeleton />;
+  }
+  
   if (items.length === 0) {
     return (
       <section className="cart" aria-labelledby="cart-title">
