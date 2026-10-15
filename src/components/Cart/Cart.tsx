@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import CartItem from "./CartItem/CartItem";
+import CartSkeleton from "./CartSkeleton";
 import "./Cart.css";
 
 import type { CartItem as CartItemType } from "../../types/cart";
 import { useCartContext } from "../../context/CartContext";
 import type { ShippingMethod } from "../../types/orders";
-import CartSkeleton from "./CartSkeleton";
 
 const SHIPPING_RATES: Record<ShippingMethod, number> = {
   standard: 5,
@@ -26,7 +26,7 @@ function Cart({
   items,
   onUpdateQuantity,
   onRemoveItem,
-  isLoading = true,
+  isLoading = false, 
 }: CartProps) {
   const navigate = useNavigate();
   const [cartAnnouncement, setCartAnnouncement] = useState("");
@@ -48,38 +48,41 @@ function Cart({
     onRemoveItem(item.id);
     setCartAnnouncement(`${item.name} removed from cart.`);
   };
+
+  
   if (isLoading) {
     return <CartSkeleton />;
   }
 
-  // if (items.length === 0) {
-  //   return (
-  //     <section className="cart" aria-labelledby="cart-title">
-  //       <div className="cart-header">
-  //         <h1 id="cart-title">Your Cart</h1>
-  //       </div>
 
-  //       <p className="sr-only" role="status" aria-atomic="true">
-  //         {cartAnnouncement}
-  //       </p>
+  if (items.length === 0) {
+    return (
+      <section className="cart" aria-labelledby="cart-title">
+        <div className="cart-header">
+          <h1 id="cart-title">Your Cart</h1>
+        </div>
 
-  //       <div className="cart-empty" aria-labelledby="empty-cart-title">
-  //         <h2 id="empty-cart-title">Your cart is empty</h2>
+        <p className="sr-only" role="status" aria-atomic="true">
+          {cartAnnouncement}
+        </p>
 
-  //         <p>Add products to your cart to see them here.</p>
+        <div className="cart-empty" aria-labelledby="empty-cart-title">
+          <h2 id="empty-cart-title">Your cart is empty</h2>
+          <p>Add products to your cart to see them here.</p>
 
-  //         <button
-  //           type="button"
-  //           className="cart-continue-button"
-  //           onClick={() => navigate("/products")}
-  //         >
-  //           Browse Products
-  //         </button>
-  //       </div>
-  //     </section>
-  //   );
-  // }
+          <button
+            type="button"
+            className="cart-continue-button"
+            onClick={() => navigate("/products")}
+          >
+            Browse Products
+          </button>
+        </div>
+      </section>
+    );
+  }
 
+ 
   return (
     <section className="cart" aria-labelledby="cart-title">
       <div className="cart-header">
