@@ -41,9 +41,8 @@ function CheckoutPage() {
     setShippingMethod,
     subtotal,
     clearCart,
-    // isLoading,
+    isLoading,
   } = useCartContext();
-  const isLoading = true;
 
   const navigate = useNavigate();
 
