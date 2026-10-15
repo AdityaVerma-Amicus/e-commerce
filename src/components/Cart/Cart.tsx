@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,7 +22,12 @@ interface CartProps {
   isLoading?: boolean;
 }
 
-function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = true, }: CartProps) {
+function Cart({
+  items,
+  onUpdateQuantity,
+  onRemoveItem,
+  isLoading = true,
+}: CartProps) {
   const navigate = useNavigate();
   const [cartAnnouncement, setCartAnnouncement] = useState("");
 
@@ -34,10 +38,7 @@ function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = true, }: Cart
     0,
   );
 
-  const totalQuantity = items.reduce(
-    (total, item) => total + item.quantity,
-    0,
-  );
+  const totalQuantity = items.reduce((total, item) => total + item.quantity, 0);
 
   const shipping = SHIPPING_RATES[shippingMethod];
   const tax = subtotal * 0.08;
@@ -47,37 +48,37 @@ function Cart({ items, onUpdateQuantity, onRemoveItem, isLoading = true, }: Cart
     onRemoveItem(item.id);
     setCartAnnouncement(`${item.name} removed from cart.`);
   };
-   if (isLoading) {
+  if (isLoading) {
     return <CartSkeleton />;
   }
 
-  if (items.length === 0) {
-    return (
-      <section className="cart" aria-labelledby="cart-title">
-        <div className="cart-header">
-          <h1 id="cart-title">Your Cart</h1>
-        </div>
+  // if (items.length === 0) {
+  //   return (
+  //     <section className="cart" aria-labelledby="cart-title">
+  //       <div className="cart-header">
+  //         <h1 id="cart-title">Your Cart</h1>
+  //       </div>
 
-        <p className="sr-only" role="status" aria-atomic="true">
-          {cartAnnouncement}
-        </p>
+  //       <p className="sr-only" role="status" aria-atomic="true">
+  //         {cartAnnouncement}
+  //       </p>
 
-        <div className="cart-empty" aria-labelledby="empty-cart-title">
-          <h2 id="empty-cart-title">Your cart is empty</h2>
+  //       <div className="cart-empty" aria-labelledby="empty-cart-title">
+  //         <h2 id="empty-cart-title">Your cart is empty</h2>
 
-          <p>Add products to your cart to see them here.</p>
+  //         <p>Add products to your cart to see them here.</p>
 
-          <button
-            type="button"
-            className="cart-continue-button"
-            onClick={() => navigate("/products")}
-          >
-            Browse Products
-          </button>
-        </div>
-      </section>
-    );
-  }
+  //         <button
+  //           type="button"
+  //           className="cart-continue-button"
+  //           onClick={() => navigate("/products")}
+  //         >
+  //           Browse Products
+  //         </button>
+  //       </div>
+  //     </section>
+  //   );
+  // }
 
   return (
     <section className="cart" aria-labelledby="cart-title">
