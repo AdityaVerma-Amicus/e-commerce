@@ -6,6 +6,7 @@ import { useCartContext } from "../../context/CartContext";
 import PageContainer from "../../components/Layout/PageContainer/PageContainer";
 
 import CheckoutSteps from "../../components/Checkout/CheckoutSteps";
+import CheckoutSkeleton from "../../components/Checkout/CheckoutSkeleton";
 
 import ShippingForm, {
   type ShippingFormData,
@@ -40,8 +41,9 @@ function CheckoutPage() {
     setShippingMethod,
     subtotal,
     clearCart,
-    isLoading,
+    // isLoading,
   } = useCartContext();
+  const isLoading = true;
 
   const navigate = useNavigate();
 
@@ -136,15 +138,21 @@ function CheckoutPage() {
     navigate("/orders");
   };
 
+  // PRODUCTION: Display the skeleton while cart data is loading.
   if (isLoading) {
     return (
-      <PageContainer className="checkout-page-container">
-        <main className="checkout-page">
-          <p className="checkout-loading" role="status" aria-live="polite">
-            Loading checkout...
-          </p>
-        </main>
-      </PageContainer>
+      <>
+        <SEO
+          title="Checkout | E-Commerce"
+          description="Complete your shipping and payment details to place your order."
+          canonicalPath="/checkout"
+          noIndex
+        />
+
+        <PageContainer className="checkout-page-container">
+          <CheckoutSkeleton />
+        </PageContainer>
+      </>
     );
   }
 

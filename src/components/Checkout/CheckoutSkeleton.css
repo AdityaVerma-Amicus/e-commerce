@@ -1,0 +1,238 @@
+.checkout-skeleton {
+  width: 100%;
+  padding: 1.5rem 0 3rem;
+  box-sizing: border-box;
+}
+
+/* Shared shimmer */
+.checkout-skeleton-bar,
+.checkout-skeleton-block,
+.checkout-skeleton-step-circle {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 25%,
+    #f3f4f6 50%,
+    #e5e7eb 75%
+  );
+  background-size: 200% 100%;
+  animation: checkout-skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.25rem;
+}
+
+/* Header */
+.checkout-skeleton-title {
+  display: flex;
+  align-items: center;
+  min-height: 4rem;
+  margin-bottom: 1.25rem;
+  padding: 0 1.25rem;
+  background: #000000;
+  box-sizing: border-box;
+}
+
+.checkout-skeleton-title-text {
+  width: 9rem;
+  height: 1.5rem;
+  background: linear-gradient(
+    90deg,
+    #444444 25%,
+    #666666 50%,
+    #444444 75%
+  );
+  background-size: 200% 100%;
+}
+
+.checkout-skeleton-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
+  min-height: 4rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box;
+}
+
+.checkout-skeleton-step {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.checkout-skeleton-step-circle {
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+}
+
+.checkout-skeleton-step-label {
+  width: 4.5rem;
+  height: 0.8rem;
+}
+
+/* Main checkout card */
+.checkout-skeleton-card {
+  width: 100%;
+  padding: 1.5rem;
+  background: #f5f5f5;
+  box-sizing: border-box;
+}
+
+.checkout-skeleton-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.checkout-skeleton-form,
+.checkout-skeleton-summary {
+  min-width: 0;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+  box-sizing: border-box;
+}
+
+.checkout-skeleton-section-title {
+  width: 10rem;
+  height: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.checkout-skeleton-field {
+  margin-bottom: 1.25rem;
+}
+
+.checkout-skeleton-label {
+  width: 7rem;
+  height: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.checkout-skeleton-input {
+  width: 100%;
+  height: 2.75rem;
+}
+
+.checkout-skeleton-primary-button {
+  width: 100%;
+  height: 2.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Order summary */
+.checkout-skeleton-summary-title {
+  width: 9rem;
+  height: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.checkout-skeleton-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+.checkout-skeleton-summary-label {
+  width: 5rem;
+  height: 0.85rem;
+}
+
+.checkout-skeleton-summary-value {
+  width: 3.5rem;
+  height: 0.85rem;
+}
+
+.checkout-skeleton-summary-total {
+  margin-top: 0.25rem;
+}
+
+.checkout-skeleton-total-value {
+  width: 4.5rem;
+  height: 1.1rem;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .checkout-skeleton-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-skeleton-summary {
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .checkout-skeleton {
+    padding: 1rem 0 2rem;
+  }
+
+  .checkout-skeleton-title {
+    min-height: 3.5rem;
+    padding: 0 1rem;
+  }
+
+  .checkout-skeleton-title-text {
+    width: 7rem;
+    height: 1.25rem;
+  }
+
+  .checkout-skeleton-steps {
+    gap: 0.5rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .checkout-skeleton-step {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .checkout-skeleton-step-circle {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-basis: 1.75rem;
+  }
+
+  .checkout-skeleton-step-label {
+    width: 3.5rem;
+    height: 0.7rem;
+  }
+
+  .checkout-skeleton-card {
+    padding: 1rem;
+  }
+
+  .checkout-skeleton-form,
+  .checkout-skeleton-summary {
+    padding: 1rem;
+  }
+}
+
+@keyframes checkout-skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkout-skeleton-bar,
+  .checkout-skeleton-block,
+  .checkout-skeleton-step-circle {
+    animation: none;
+  }
+}
